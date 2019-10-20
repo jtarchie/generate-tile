@@ -21,8 +21,8 @@ var _ = Describe("Parsing spec files", func() {
 		Expect(spec.Packages).To(Equal([]string{"package1", "package2"}))
 		Expect(spec.Properties).To(HaveKeyWithValue("some.property", generator.Property{
 			Description: "This property is important for something.",
-			Default:     "INFO",
-			Example:     "INFO | ERROR",
+			Default:     1,
+			Example:     100,
 		}))
 		Expect(spec.Properties).To(HaveKeyWithValue("some.tls_property", generator.Property{
 			Description: "This is a property with a type.",

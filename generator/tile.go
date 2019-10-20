@@ -2,6 +2,8 @@ package generator
 
 import (
 	"fmt"
+	"log"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -19,12 +21,22 @@ type formType struct {
 	PropertyInputs []PropertyInput `yaml:"property_inputs"`
 }
 
-type tilePayload struct {
-	Description string
-	FormTypes   []formType `yaml:"form_types"`
+type PropertyBlueprint struct {
+	Name               string
+	Type               string
+	Optional           bool
+	Configurable       bool
+	Default            interface{}         `yaml:"default,omitempty"`
+	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints,omitempty"`
 }
 
-func GeneratorTile(specs []specPayload) (tilePayload, error) {
+type tilePayload struct {
+	Description        string
+	FormTypes          []formType          `yaml:"form_types"`
+	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints"`
+}
+
+func GeneratorTile(specs []SpecPayload) (tilePayload, error) {
 	var tile tilePayload
 
 	propertiesByGroup := map[string]map[string]Property{}
@@ -67,21 +79,88 @@ func GeneratorTile(specs []specPayload) (tilePayload, error) {
 		sort.Strings(propertyNames)
 
 		for _, name := range propertyNames {
-			var propertyInput PropertyInput
-
 			property := propertiesByGroup[group][name]
 
+			var propertyInput PropertyInput
 			propertyInput.Description = property.Description
 			propertyInput.Label = strings.Title(breakApartPropertyName(name))
-			propertyInput.Reference = fmt.Sprintf(".properties.%s", name)
+			propertyBlueprintName := fmt.Sprintf(".properties.%s", name)
+			propertyInput.Reference = propertyBlueprintName
 
 			ft.PropertyInputs = append(ft.PropertyInputs, propertyInput)
+
+			var propertyBlueprint PropertyBlueprint
+			propertyBlueprint.Name = propertyBlueprintName
+			propertyBlueprint.Configurable = true
+			propertyBlueprint.Optional = true
+			propertyBlueprint.Default = property.Default
+			propertyBlueprint.Type = DeterminePropertyBlueprintType(name, property)
+
+			if propertyBlueprint.Type == "collection" {
+				propertyBlueprint.PropertyBlueprints = []PropertyBlueprint{
+					{
+						Name:               "key",
+						Type:               "string",
+						Optional:           true,
+						Configurable:       true,
+					},
+					{
+						Name:               "value",
+						Type:               "string",
+						Optional:           true,
+						Configurable:       true,
+					},
+				}
+			}
+
+			tile.PropertyBlueprints = append(tile.PropertyBlueprints, propertyBlueprint)
 		}
 
 		tile.FormTypes = append(tile.FormTypes, ft)
 	}
 
 	return tile, nil
+}
+
+func DeterminePropertyBlueprintType(name string, property Property) string {
+	if regexp.MustCompile(`[_.]port\z`).MatchString(name) {
+		return "port"
+	}
+
+	if regexp.MustCompile(`[_.]ip\z`).MatchString(name) {
+		return "ip_address"
+	}
+
+	switch property.Type {
+	case "certificate":
+		return "rsa_cert_credentials"
+	case "rsa", "ssh":
+		return "rsa_pkey_credentials"
+	}
+
+	var unknown interface{}
+	for _, value := range []interface{}{property.Default, property.Example} {
+		if value != nil {
+			unknown = value
+			break
+		}
+	}
+
+	switch unknown.(type) {
+	case int, float32, float64:
+		return "integer"
+	case nil, string:
+		return "string"
+	case bool:
+		return "boolean"
+	case []interface{}:
+		return "string_list"
+	case map[interface{}]interface{}:
+		return "collection"
+	}
+
+	log.Panicf("not able to determine type for property %s: %#v", name, property)
+	return "string"
 }
 
 func breakApartPropertyName(name string) string {

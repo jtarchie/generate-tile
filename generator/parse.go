@@ -20,7 +20,7 @@ type Property struct {
 	} `yaml:"env_fields"`
 }
 
-type specPayload struct {
+type SpecPayload struct {
 	Name        string
 	Description string
 	Templates   map[string]string
@@ -38,8 +38,8 @@ type specPayload struct {
 	Properties map[string]Property `yaml:"properties"`
 }
 
-func ParseSpec(filename string) (specPayload, error) {
-	var spec specPayload
+func ParseSpec(filename string) (SpecPayload, error) {
+	var spec SpecPayload
 
 	contents, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -54,7 +54,7 @@ func ParseSpec(filename string) (specPayload, error) {
 	return spec, nil
 }
 
-func ParseSpecs(releasePath string) ([]specPayload, error) {
+func ParseSpecs(releasePath string) ([]SpecPayload, error) {
 	matches, err := filepath.Glob(filepath.Join(releasePath, "jobs", "*"))
 	if err != nil {
 		return nil, fmt.Errorf("could not find the release's jobs in %s: %s", releasePath, err)
@@ -65,7 +65,7 @@ func ParseSpecs(releasePath string) ([]specPayload, error) {
 
 	sort.Strings(matches)
 
-	var specs []specPayload
+	var specs []SpecPayload
 	for _, jobPath := range matches {
 		specPath := filepath.Join(jobPath, "spec")
 

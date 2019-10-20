@@ -52,8 +52,8 @@ consumes:
 properties:
   some.property:
     description: This property is important for something.
-    default: INFO
-    example: INFO | ERROR
+    default: 1
+    example: 100
   some.tls_property:
     description: This is a property with a type.
     type: certificate

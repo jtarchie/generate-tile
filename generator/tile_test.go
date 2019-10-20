@@ -45,6 +45,51 @@ var _ = Describe("Generating the tile", func() {
 					Description: "This is a property with a type.",
 				},
 			}))
+
+			pb := tile.PropertyBlueprints
+			Expect(pb[0].Name).To(Equal(".properties.no_namespace"))
+			Expect(pb[0].Configurable).To(BeTrue())
+			Expect(pb[0].Optional).To(BeTrue())
+			Expect(pb[0].Type).To(Equal("string"))
+
+			Expect(pb[1].Name).To(Equal(".properties.some.property"))
+			Expect(pb[1].Type).To(Equal("integer"))
+			Expect(pb[1].Default).To(Equal(1))
+
+			Expect(pb[2].Name).To(Equal(".properties.some.tls_property"))
+			Expect(pb[2].Type).To(Equal("rsa_cert_credentials"))
+		})
+	})
+
+	When("there is a collection in the spec", func() {
+const specWithCollection = `
+name: example
+
+properties:
+  some.collection:
+    example:
+      env: dev
+      foo: bar
+`
+		It("creates the correct property", func() {
+			spec, err := generator.ParseSpec(writeFile(specWithCollection))
+			Expect(err).NotTo(HaveOccurred())
+
+			specs := []generator.SpecPayload{spec}
+			tile, err := generator.GeneratorTile(specs)
+			Expect(err).NotTo(HaveOccurred())
+
+			pb := tile.PropertyBlueprints
+			Expect(pb[0].Name).To(Equal(".properties.some.collection"))
+			Expect(pb[0].PropertyBlueprints[0].Name).To(Equal("key"))
+			Expect(pb[0].PropertyBlueprints[0].Type).To(Equal("string"))
+			Expect(pb[0].PropertyBlueprints[0].Configurable).To(BeTrue())
+			Expect(pb[0].PropertyBlueprints[0].Optional).To(BeTrue())
+
+			Expect(pb[0].PropertyBlueprints[1].Name).To(Equal("value"))
+			Expect(pb[0].PropertyBlueprints[1].Type).To(Equal("string"))
+			Expect(pb[0].PropertyBlueprints[1].Configurable).To(BeTrue())
+			Expect(pb[0].PropertyBlueprints[1].Optional).To(BeTrue())
 		})
 	})
 })

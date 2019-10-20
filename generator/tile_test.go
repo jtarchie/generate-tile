@@ -22,7 +22,7 @@ var _ = Describe("Generating the tile", func() {
 			Expect(ft.Label).To(Equal("Properties"))
 			Expect(ft.Description).To(Equal("Configuration settings for properties"))
 			Expect(ft.PropertyInputs).To(Equal([]generator.PropertyInput{
-				generator.PropertyInput{
+				{
 					Reference:   ".properties.no_namespace",
 					Label:       "No Namespace",
 					Description: `This property has no namespace (".") in it.`,
@@ -34,12 +34,12 @@ var _ = Describe("Generating the tile", func() {
 			Expect(ft.Label).To(Equal("Some"))
 			Expect(ft.Description).To(Equal("Configuration settings for some"))
 			Expect(ft.PropertyInputs).To(Equal([]generator.PropertyInput{
-				generator.PropertyInput{
+				{
 					Reference:   ".properties.some.property",
 					Label:       "Some Property",
 					Description: "This property is important for something.",
 				},
-				generator.PropertyInput{
+				{
 					Reference:   ".properties.some.tls_property",
 					Label:       "Some Tls Property",
 					Description: "This is a property with a type.",
@@ -62,7 +62,7 @@ var _ = Describe("Generating the tile", func() {
 	})
 
 	When("there is a collection in the spec", func() {
-const specWithCollection = `
+		const specWithCollection = `
 name: example
 
 properties:

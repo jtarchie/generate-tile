@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
+
 	"github.com/imdario/mergo"
 	"github.com/jtarchie/generate-tile/generator"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"log"
 )
 
 func main() {

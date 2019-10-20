@@ -1,12 +1,13 @@
 package generator_test
 
 import (
-	"github.com/jtarchie/generate-tile/generator"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/jtarchie/generate-tile/generator"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Parsing spec files", func() {

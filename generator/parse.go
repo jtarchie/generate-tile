@@ -2,10 +2,11 @@ package generator
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Property struct {
@@ -43,7 +44,7 @@ func ParseSpec(filename string) (SpecPayload, error) {
 
 	contents, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return spec, fmt.Errorf("could not read contentes of %s: %s", filename, err)
+		return spec, fmt.Errorf("could not read contents of %s: %s", filename, err)
 	}
 
 	err = yaml.UnmarshalStrict(contents, &spec)

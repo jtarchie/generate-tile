@@ -59,7 +59,7 @@ func GeneratorTile(specs []SpecPayload) (tilePayload, error) {
 	}
 
 	groupNames := []string{}
-	for group, _ := range propertiesByGroup {
+	for group := range propertiesByGroup {
 		groupNames = append(groupNames, group)
 	}
 
@@ -72,7 +72,7 @@ func GeneratorTile(specs []SpecPayload) (tilePayload, error) {
 		ft.Description = fmt.Sprintf("Configuration settings for %s", group)
 
 		propertyNames := []string{}
-		for name, _ := range propertiesByGroup[group] {
+		for name := range propertiesByGroup[group] {
 			propertyNames = append(propertyNames, name)
 		}
 
@@ -99,16 +99,16 @@ func GeneratorTile(specs []SpecPayload) (tilePayload, error) {
 			if propertyBlueprint.Type == "collection" {
 				propertyBlueprint.PropertyBlueprints = []PropertyBlueprint{
 					{
-						Name:               "key",
-						Type:               "string",
-						Optional:           true,
-						Configurable:       true,
+						Name:         "key",
+						Type:         "string",
+						Optional:     true,
+						Configurable: true,
 					},
 					{
-						Name:               "value",
-						Type:               "string",
-						Optional:           true,
-						Configurable:       true,
+						Name:         "value",
+						Type:         "string",
+						Optional:     true,
+						Configurable: true,
 					},
 				}
 			}

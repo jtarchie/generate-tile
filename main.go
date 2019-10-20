@@ -8,7 +8,6 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
-	"strings"
 )
 
 func main() {
@@ -86,14 +85,4 @@ func parseRelease(releasePath string) ([]byte, error) {
 	}
 
 	return contents, nil
-}
-
-func propertyNameToLabel(name string) string {
-	var labels []string
-
-	names := strings.Split(name, ".")
-	for _, n := range names {
-		labels = append(labels, strings.Split(n, "_")...)
-	}
-	return strings.Join(labels, " ")
 }

@@ -49,7 +49,7 @@ var _ = Describe("Parsing spec files", func() {
 		Expect(release.LatestVersion).To(Equal("1.0.0"))
 	})
 
-	It("parses a bosh release", func() {
+	FIt("parses a bosh release", func() {
 		dir := createReleaseTarball()
 
 		release, err := generator.ParseRelease(dir)

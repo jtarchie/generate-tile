@@ -124,12 +124,13 @@ func createReleaseTarball() string {
 	Expect(err).NotTo(HaveOccurred())
 
 	releasePath := filepath.Join(releaseDir, "release.tgz")
+	files, _ := filepath.Glob(filepath.Join(buildDir, "*"))
+
 	err = archiver.Archive(
-		[]string{buildDir},
+		files,
 		releasePath,
 	)
 	Expect(err).NotTo(HaveOccurred())
 
-	fmt.Println(releasePath)
 	return releasePath
 }

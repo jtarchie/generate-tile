@@ -10,7 +10,9 @@ import (
 
 var _ = Describe("Determining the property type", func() {
 	DescribeTable("determine type", func(name string, property generator.Property, expectedType string) {
-		Expect(generator.DeterminePropertyBlueprintType(name, property)).To(Equal(expectedType))
+		actualType, err := generator.DeterminePropertyBlueprintType(name, property)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(actualType).To(Equal(expectedType))
 	},
 		Entry("defaults to string", "", generator.Property{}, "string"),
 

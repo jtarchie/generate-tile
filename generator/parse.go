@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"github.com/bmatcuk/doublestar"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
@@ -21,22 +22,32 @@ type Property struct {
 	} `yaml:"env_fields"`
 }
 
+type consumePayload struct {
+	Name     string
+	Type     string
+	Optional bool
+}
+
+type providerPayload struct {
+	Name       string
+	Type       string
+	Properties []string
+}
+
 type SpecPayload struct {
 	Name        string
 	Description string
 	Templates   map[string]string
 	Packages    []string
-	Consumes    []struct {
-		Name     string
-		Type     string
-		Optional bool
-	}
-	Provides []struct {
-		Name       string
-		Type       string
-		Properties []string
-	}
-	Properties map[string]Property `yaml:"properties"`
+	Consumes    []consumePayload
+	Provides    []providerPayload
+	Properties  map[string]Property `yaml:"properties"`
+}
+
+type BoshReleasePayload struct {
+	Specs         []SpecPayload
+	Name          string
+	LatestVersion string
 }
 
 func ParseSpec(filename string) (SpecPayload, error) {
@@ -55,13 +66,38 @@ func ParseSpec(filename string) (SpecPayload, error) {
 	return spec, nil
 }
 
-func ParseSpecs(releasePath string) ([]SpecPayload, error) {
+type ReleasePayload struct {
+	Name               string
+	Version            string
+	CommitHash         string `yaml:"commit_hash"`
+	UncommittedChanges bool   `yaml:"uncommitted_changes"`
+	Jobs               []struct {
+		Name        string
+		Version     string
+		Fingerprint string
+		Sha1        string `yaml:"sha1"`
+	}
+	Packages []struct {
+		Name         string
+		Version      string
+		Fingerprint  string
+		Sha1         string `yaml:"sha1"`
+		Dependencies interface{}
+	}
+	License struct {
+		Version     string
+		Fingerprint string
+		Sha1        string `yaml:"sha1"`
+	}
+}
+
+func ParseRelease(releasePath string) (BoshReleasePayload, error) {
 	matches, err := filepath.Glob(filepath.Join(releasePath, "jobs", "*"))
 	if err != nil {
-		return nil, fmt.Errorf("could not find the release's jobs in %s: %s", releasePath, err)
+		return BoshReleasePayload{}, fmt.Errorf("could not find the release's jobs in %s: %s", releasePath, err)
 	}
 	if len(matches) == 0 {
-		return nil, fmt.Errorf("no jobs found in release in %s", releasePath)
+		return BoshReleasePayload{}, fmt.Errorf("no jobs found in release in %s", releasePath)
 	}
 
 	sort.Strings(matches)
@@ -72,11 +108,39 @@ func ParseSpecs(releasePath string) ([]SpecPayload, error) {
 
 		spec, err := ParseSpec(specPath)
 		if err != nil {
-			return nil, fmt.Errorf("could not open spec of the job %s: %s", specPath, err)
+			return BoshReleasePayload{}, fmt.Errorf("could not open spec of the job %s: %s", specPath, err)
 		}
 
 		specs = append(specs, spec)
 	}
 
-	return specs, nil
+	var boshRelease BoshReleasePayload
+	boshRelease.Specs = specs
+
+	matches, err = doublestar.Glob(filepath.Join(releasePath, "releases", "**", "*-*.yml"))
+	if err != nil {
+		return BoshReleasePayload{}, fmt.Errorf("could not find the release's releases in %s: %s", releasePath, err)
+	}
+	if len(matches) == 0 {
+		return BoshReleasePayload{}, fmt.Errorf("no releases found in release in %s", releasePath)
+	}
+
+	sort.Strings(matches)
+
+	latestRelease := matches[len(matches)-1]
+	contents, err := ioutil.ReadFile(latestRelease)
+	if err != nil {
+		return BoshReleasePayload{}, fmt.Errorf("could not open release %s: %s", latestRelease, err)
+	}
+
+	var release ReleasePayload
+	err = yaml.UnmarshalStrict(contents, &release)
+	if err != nil {
+		return BoshReleasePayload{}, fmt.Errorf("could not unmarshal release %s: %s", latestRelease, err)
+	}
+
+	boshRelease.Name = release.Name
+	boshRelease.LatestVersion = release.Version
+
+	return boshRelease, nil
 }

@@ -34,13 +34,17 @@ var _ = Describe("Parsing spec files", func() {
 	It("parses a directory of spec files", func() {
 		dir := createReleaseDir()
 
-		specs, err := generator.ParseSpecs(dir)
+		release, err := generator.ParseRelease(dir)
 		Expect(err).NotTo(HaveOccurred())
 
+		specs := release.Specs
 		Expect(specs).To(HaveLen(3))
 		Expect(specs[0].Name).To(Equal("other"))
 		Expect(specs[1].Name).To(Equal("some"))
 		Expect(specs[2].Name).To(Equal("work"))
+
+		Expect(release.Name).To(Equal("my-release"))
+		Expect(release.LatestVersion).To(Equal("1.0.0"))
 	})
 })
 
@@ -57,6 +61,16 @@ func createReleaseDir() string {
 		err = ioutil.WriteFile(filepath.Join(path, "spec"), []byte(specYAML(jobName)), os.ModePerm)
 		Expect(err).NotTo(HaveOccurred())
 	}
+
+	releasesPath := filepath.Join(dir, "releases")
+	err = os.MkdirAll(releasesPath, os.ModePerm)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = ioutil.WriteFile(filepath.Join(releasesPath, "example-0.0.1.yml"), []byte(`{name: my-release, version: 0.0.1}`), os.ModePerm)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = ioutil.WriteFile(filepath.Join(releasesPath, "example-1.0.0.yml"), []byte(`{name: my-release, version: 1.0.0}`), os.ModePerm)
+	Expect(err).NotTo(HaveOccurred())
 
 	return dir
 }

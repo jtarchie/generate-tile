@@ -10,10 +10,10 @@ var _ = Describe("Generating the tile", func() {
 	When("provided specs", func() {
 		It("generates a set of properties and forms", func() {
 			dir := createReleaseDir()
-			specs, err := generator.ParseSpecs(dir)
+			release, err := generator.ParseRelease(dir)
 			Expect(err).NotTo(HaveOccurred())
 
-			tile, err := generator.GeneratorTile(specs)
+			tile, err := generator.GeneratorTile(release)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(tile.Description).To(Equal(""))
@@ -58,6 +58,17 @@ var _ = Describe("Generating the tile", func() {
 
 			Expect(pb[2].Name).To(Equal(".properties.some.tls_property"))
 			Expect(pb[2].Type).To(Equal("rsa_cert_credentials"))
+
+			jobs := tile.JobTypes
+			Expect(jobs[0].Name).To(Equal("other"))
+			Expect(jobs[0].ResourceLabel).To(Equal("Other"))
+			Expect(jobs[0].Templates[0].Name).To(Equal("other"))
+			Expect(jobs[0].Templates[0].Release).To(Equal("my-release"))
+			Expect(jobs[0].Templates[0].Consumes).To(MatchYAML("provided: {from: some-provided}"))
+			Expect(jobs[0].Templates[0].Provides).To(MatchYAML("provided: {as: other-provided}"))
+
+			Expect(jobs[1].Name).To(Equal("some"))
+			Expect(jobs[2].Name).To(Equal("work"))
 		})
 	})
 
@@ -75,8 +86,11 @@ properties:
 			spec, err := generator.ParseSpec(writeFile(specWithCollection))
 			Expect(err).NotTo(HaveOccurred())
 
-			specs := []generator.SpecPayload{spec}
-			tile, err := generator.GeneratorTile(specs)
+			release := generator.BoshReleasePayload{
+				Specs: []generator.SpecPayload{spec},
+			}
+
+			tile, err := generator.GeneratorTile(release)
 			Expect(err).NotTo(HaveOccurred())
 
 			pb := tile.PropertyBlueprints

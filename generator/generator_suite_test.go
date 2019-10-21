@@ -44,9 +44,13 @@ packages:
 - package1
 - package2
 
+provides:
+- name: provided
+  type: provided
+
 consumes:
-- name: external-job
-  type: external-job
+- name: provided
+  type: provided
   optional: true
 
 properties:

@@ -70,7 +70,7 @@ func mergeWithContents(file string, currentTileContents []byte) ([]byte, error) 
 }
 
 func parseRelease(releasePath string) ([]byte, error) {
-	specs, err := generator.ParseSpecs(releasePath)
+	specs, err := generator.ParseRelease(releasePath)
 	if err != nil {
 		return nil, err
 	}

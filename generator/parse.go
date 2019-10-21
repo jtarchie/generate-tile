@@ -2,10 +2,11 @@ package generator
 
 import (
 	"fmt"
-	"github.com/bmatcuk/doublestar"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
+
+	"github.com/bmatcuk/doublestar"
 
 	"gopkg.in/yaml.v2"
 )

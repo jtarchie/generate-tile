@@ -65,14 +65,14 @@ var _ = Describe("Generating the tile", func() {
 			Expect(jobs[0].SingleAZOnly).To(BeFalse())
 			Expect(jobs[0].UseStemcell).To(Equal(""))
 			Expect(jobs[0].InstanceDefinition).To(Equal(generator.InstanceDefinition{
-				Name: "instances",
-				Label: "Instances",
+				Name:         "instances",
+				Label:        "Instances",
 				Configurable: true,
 				Constraints: generator.Constraints{
 					Min: 1,
 				},
 				Default: 1,
-				Type: "integer",
+				Type:    "integer",
 			}))
 
 			Expect(jobs[0].Templates[0].Name).To(Equal("other"))

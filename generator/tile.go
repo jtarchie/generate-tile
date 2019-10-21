@@ -2,10 +2,11 @@ package generator
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"regexp"
 	"sort"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type PropertyInput struct {

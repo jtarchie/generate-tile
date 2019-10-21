@@ -43,18 +43,24 @@ type ResourceDefinition struct {
 	Default      interface{}
 }
 
+type Constraints struct {
+	Max int `yaml:",omitempty"`
+	Min int `yaml:",omitempty"`
+}
+
+type ZeroIf struct {
+	PropertyReference string   `yaml:"property_reference"`
+	PropertyValues    []string `yaml:"property_values"`
+}
+
 type InstanceDefinition struct {
 	Name         string
+	Label        string
 	Configurable bool
 	Default      int
-	Constraints  struct {
-		Max int `yaml:",omitempty"`
-		Min int `yaml:",omitempty"`
-	} `yaml:",omitempty"`
-	ZeroIf struct {
-		PropertyReference string   `yaml:"property_reference"`
-		PropertyValues    []string `yaml:"property_values"`
-	} `yaml:"zero_if,omitempty"`
+	Constraints  Constraints `yaml:",omitempty"`
+	Type         string
+	ZeroIf       ZeroIf `yaml:"zero_if,omitempty"`
 }
 
 type JobType struct {
@@ -62,12 +68,12 @@ type JobType struct {
 	ResourceLabel       string `yaml:"resource_label"`
 	Templates           []Template
 	Release             string
-	SingleAZOnly        bool                   `yaml:"single_az_only"`
-	MaxInFlight         interface{}            `yaml:"max_in_flight"`
-	UseStemcell         string                 `yaml:"use_stemcell,omitempty"`
-	ResourceDefinitions []ResourceDefinition   `yaml:"resource_definitions"`
-	InstanceDefinition  map[string]interface{} `yaml:"instance_definition"`
-	Manifest            string                 `yaml:",omitempty"`
+	SingleAZOnly        bool                 `yaml:"single_az_only"`
+	MaxInFlight         interface{}          `yaml:"max_in_flight"`
+	UseStemcell         string               `yaml:"use_stemcell,omitempty"`
+	ResourceDefinitions []ResourceDefinition `yaml:"resource_definitions"`
+	InstanceDefinition  InstanceDefinition   `yaml:"instance_definition"`
+	Manifest            string               `yaml:",omitempty"`
 }
 
 type tilePayload struct {
@@ -179,6 +185,16 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 			return tilePayload{}, err
 		}
 		jobType.Templates = templates
+		jobType.InstanceDefinition = InstanceDefinition{
+			Name:         "instances",
+			Label:        "Instances",
+			Configurable: true,
+			Default:      1,
+			Constraints: Constraints{
+				Min: 1,
+			},
+			Type: "integer",
+		}
 
 		tile.JobTypes = append(tile.JobTypes, jobType)
 	}

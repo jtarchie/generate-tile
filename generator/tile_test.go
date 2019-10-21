@@ -62,6 +62,19 @@ var _ = Describe("Generating the tile", func() {
 			jobs := tile.JobTypes
 			Expect(jobs[0].Name).To(Equal("other"))
 			Expect(jobs[0].ResourceLabel).To(Equal("Other"))
+			Expect(jobs[0].SingleAZOnly).To(BeFalse())
+			Expect(jobs[0].UseStemcell).To(Equal(""))
+			Expect(jobs[0].InstanceDefinition).To(Equal(generator.InstanceDefinition{
+				Name: "instances",
+				Label: "Instances",
+				Configurable: true,
+				Constraints: generator.Constraints{
+					Min: 1,
+				},
+				Default: 1,
+				Type: "integer",
+			}))
+
 			Expect(jobs[0].Templates[0].Name).To(Equal("other"))
 			Expect(jobs[0].Templates[0].Release).To(Equal("my-release"))
 			Expect(jobs[0].Templates[0].Consumes).To(MatchYAML("provided: {from: some-provided}"))

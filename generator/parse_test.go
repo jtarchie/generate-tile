@@ -1,6 +1,8 @@
 package generator_test
 
 import (
+	"fmt"
+	"github.com/mholt/archiver"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -46,6 +48,22 @@ var _ = Describe("Parsing spec files", func() {
 		Expect(release.Name).To(Equal("my-release"))
 		Expect(release.LatestVersion).To(Equal("1.0.0"))
 	})
+
+	It("parses a bosh release", func() {
+		dir := createReleaseTarball()
+
+		release, err := generator.ParseRelease(dir)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(release.Name).To(Equal("my-release"))
+		Expect(release.LatestVersion).To(Equal("1.0.0"))
+
+		specs := release.Specs
+		Expect(specs).To(HaveLen(3))
+		Expect(specs[0].Name).To(Equal("other"))
+		Expect(specs[1].Name).To(Equal("some"))
+		Expect(specs[2].Name).To(Equal("work"))
+	})
 })
 
 func createReleaseDir() string {
@@ -73,4 +91,45 @@ func createReleaseDir() string {
 	Expect(err).NotTo(HaveOccurred())
 
 	return dir
+}
+
+func createReleaseTarball() string {
+	buildDir, err := ioutil.TempDir("", "")
+	Expect(err).NotTo(HaveOccurred())
+
+	jobNames := []string{"some", "other", "work"}
+	for _, jobName := range jobNames {
+		path := filepath.Join(buildDir, "jobs", jobName)
+		err := os.MkdirAll(path, os.ModePerm)
+		Expect(err).NotTo(HaveOccurred())
+
+		jobMF := filepath.Join(path, "job.MF")
+		err = ioutil.WriteFile(jobMF, []byte(specYAML(jobName)), os.ModePerm)
+		Expect(err).NotTo(HaveOccurred())
+
+		err = archiver.Archive(
+			[]string{path},
+			filepath.Join(buildDir, "jobs", fmt.Sprintf("%s.tgz", jobName)),
+		)
+		Expect(err).NotTo(HaveOccurred())
+
+		err = os.RemoveAll(path)
+		Expect(err).NotTo(HaveOccurred())
+	}
+
+	err = ioutil.WriteFile(filepath.Join(buildDir, "release.MF"), []byte(`{name: my-release, version: 1.0.0}`), os.ModePerm)
+	Expect(err).NotTo(HaveOccurred())
+
+	releaseDir, err := ioutil.TempDir("", "")
+	Expect(err).NotTo(HaveOccurred())
+
+	releasePath := filepath.Join(releaseDir, "release.tgz")
+	err = archiver.Archive(
+		[]string{buildDir},
+		releasePath,
+	)
+	Expect(err).NotTo(HaveOccurred())
+
+	fmt.Println(releasePath)
+	return releasePath
 }

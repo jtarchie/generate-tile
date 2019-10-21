@@ -2,9 +2,12 @@ package generator
 
 import (
 	"fmt"
+	"github.com/mholt/archiver"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/bmatcuk/doublestar"
 
@@ -52,11 +55,19 @@ type BoshReleasePayload struct {
 }
 
 func ParseSpec(filename string) (SpecPayload, error) {
-	var spec SpecPayload
+	var (
+		spec     SpecPayload
+		contents []byte
+		err      error
+	)
 
-	contents, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return spec, fmt.Errorf("could not read contents of %s: %s", filename, err)
+	contents = []byte(filename)
+
+	if _, err := os.Stat(filename); err == nil {
+		contents, err = ioutil.ReadFile(filename)
+		if err != nil {
+			return spec, fmt.Errorf("could not read contents of %s: %s", filename, err)
+		}
 	}
 
 	err = yaml.UnmarshalStrict(contents, &spec)
@@ -93,6 +104,72 @@ type ReleasePayload struct {
 }
 
 func ParseRelease(releasePath string) (BoshReleasePayload, error) {
+	info, err := os.Stat(releasePath)
+	if err != nil {
+		return BoshReleasePayload{}, fmt.Errorf("could not state release %s: %s", releasePath, err)
+	}
+
+	var boshRelease BoshReleasePayload
+	if info.IsDir() {
+		boshRelease, err = parseReleaseDir(releasePath)
+		if err != nil {
+			return BoshReleasePayload{}, fmt.Errorf("could not parse directory: %s", err)
+		}
+	} else {
+		boshRelease, err = parseReleaseTarball(releasePath)
+		if err != nil {
+			return BoshReleasePayload{}, fmt.Errorf("could not parse bosh release: %s", err)
+		}
+	}
+
+	return boshRelease, nil
+}
+
+func parseReleaseTarball(releasePath string) (BoshReleasePayload, error) {
+	var boshRelease BoshReleasePayload
+
+	err := archiver.Walk(releasePath, func(f archiver.File) error {
+		if strings.Contains(f.Name(), "release.MF") {
+			contents, err := ioutil.ReadAll(f)
+			if err != nil {
+				return fmt.Errorf("could not read contents of release %s: %s", f.Name(), err)
+			}
+
+			var release ReleasePayload
+
+			err = yaml.UnmarshalStrict(contents, &release)
+			if err != nil {
+				return fmt.Errorf("could not unmarshal release %s: %s", f.Name(), err)
+			}
+
+			boshRelease.Name = release.Name
+			boshRelease.LatestVersion = release.Version
+		}
+
+		if strings.Contains(f.Name(), "job.MF") {
+			contents, err := ioutil.ReadAll(f)
+			if err != nil {
+				return fmt.Errorf("could not read contents of spec %s: %s", f.Name(), err)
+			}
+
+			spec, err := ParseSpec(string(contents))
+			if err != nil {
+				return fmt.Errorf("could not open spec of the job %s: %s", f.Name(), err)
+			}
+
+			boshRelease.Specs = append(boshRelease.Specs, spec)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return BoshReleasePayload{}, fmt.Errorf("could not unarchive %s: %s", releasePath, err)
+	}
+
+	return boshRelease, nil
+}
+
+func parseReleaseDir(releasePath string) (BoshReleasePayload, error) {
 	matches, err := filepath.Glob(filepath.Join(releasePath, "jobs", "*"))
 	if err != nil {
 		return BoshReleasePayload{}, fmt.Errorf("could not find the release's jobs in %s: %s", releasePath, err)
@@ -135,6 +212,7 @@ func ParseRelease(releasePath string) (BoshReleasePayload, error) {
 	}
 
 	var release ReleasePayload
+
 	err = yaml.UnmarshalStrict(contents, &release)
 	if err != nil {
 		return BoshReleasePayload{}, fmt.Errorf("could not unmarshal release %s: %s", latestRelease, err)

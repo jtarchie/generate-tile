@@ -76,9 +76,44 @@ var _ = Describe("Generating the tile", func() {
 			}))
 			Expect(jobs[0].ResourceDefinitions).To(Equal([]generator.ResourceDefinition{
 				{
-					Name:         "",
-					Configurable: false,
-					Default:      nil,
+					Name:         "cpu",
+					Configurable: true,
+					Default:      1,
+					Constraints: generator.Constraints{
+						Min: 1,
+					},
+					Label: "CPU",
+					Type:  "integer",
+				},
+				{
+					Name:         "ram",
+					Configurable: true,
+					Default:      8192,
+					Constraints: generator.Constraints{
+						Min: 8192,
+					},
+					Label: "RAM",
+					Type:  "integer",
+				},
+				{
+					Name:         "ephemeral_disk",
+					Configurable: true,
+					Default:      10240,
+					Constraints: generator.Constraints{
+						Min: 10240,
+					},
+					Label: "Ephemeral Disk",
+					Type:  "integer",
+				},
+				{
+					Name:         "persistent_disk",
+					Configurable: true,
+					Default:      10240,
+					Constraints: generator.Constraints{
+						Min: 0,
+					},
+					Label: "Persistent Disk",
+					Type:  "integer",
 				},
 			}))
 

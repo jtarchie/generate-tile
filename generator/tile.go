@@ -189,21 +189,71 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 			return tilePayload{}, err
 		}
 		jobType.Templates = templates
-		jobType.InstanceDefinition = InstanceDefinition{
-			Name:         "instances",
-			Label:        "Instances",
-			Configurable: true,
-			Default:      1,
-			Constraints: Constraints{
-				Min: 1,
-			},
-			Type: "integer",
-		}
+		attachInstanceDefinition(&jobType)
+		attachResourceDefinitions(&jobType)
 
 		tile.JobTypes = append(tile.JobTypes, jobType)
 	}
 
 	return tile, nil
+}
+
+func attachResourceDefinitions(jobType *JobType) {
+	jobType.ResourceDefinitions = []ResourceDefinition{
+		{
+			Name:         "cpu",
+			Configurable: true,
+			Default:      1,
+			Constraints: Constraints{
+				Min: 1,
+			},
+			Label: "CPU",
+			Type:  "integer",
+		},
+		{
+			Name:         "ram",
+			Configurable: true,
+			Default:      8192,
+			Constraints: Constraints{
+				Min: 8192,
+			},
+			Label: "RAM",
+			Type:  "integer",
+		},
+		{
+			Name:         "ephemeral_disk",
+			Configurable: true,
+			Default:      10240,
+			Constraints: Constraints{
+				Min: 10240,
+			},
+			Label: "Ephemeral Disk",
+			Type:  "integer",
+		},
+		{
+			Name:         "persistent_disk",
+			Configurable: true,
+			Default:      10240,
+			Constraints: Constraints{
+				Min: 0,
+			},
+			Label: "Persistent Disk",
+			Type:  "integer",
+		},
+	}
+}
+
+func attachInstanceDefinition(jobType *JobType) {
+	jobType.InstanceDefinition = InstanceDefinition{
+		Name:         "instances",
+		Label:        "Instances",
+		Configurable: true,
+		Default:      1,
+		Constraints: Constraints{
+			Min: 1,
+		},
+		Type: "integer",
+	}
 }
 
 type consumer struct {

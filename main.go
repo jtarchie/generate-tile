@@ -12,16 +12,16 @@ import (
 )
 
 func main() {
-	dir := flag.String("dir", "", "directory to the bosh release")
+	path := flag.String("path", "", "path to the bosh release (source directory or tarball)")
 	mergeFile := flag.String("merge", "", "yaml file to merge results with")
 
 	flag.Parse()
 
-	if *dir == "" {
+	if *path == "" {
 		log.Fatalf("please specify bosh release directory")
 	}
 
-	contents, err := parseRelease(*dir)
+	contents, err := parseRelease(*path)
 	if err != nil {
 		log.Fatalf("tile creation failed: %s", err)
 	}

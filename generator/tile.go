@@ -42,6 +42,9 @@ type ResourceDefinition struct {
 	Name         string
 	Configurable bool
 	Default      interface{}
+	Constraints  Constraints `yaml:",omitempty"`
+	Label        string
+	Type         string
 }
 
 type Constraints struct {

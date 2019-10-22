@@ -74,6 +74,13 @@ var _ = Describe("Generating the tile", func() {
 				Default: 1,
 				Type:    "integer",
 			}))
+			Expect(jobs[0].ResourceDefinitions).To(Equal([]generator.ResourceDefinition{
+				{
+					Name:         "",
+					Configurable: false,
+					Default:      nil,
+				},
+			}))
 
 			Expect(jobs[0].Templates[0].Name).To(Equal("other"))
 			Expect(jobs[0].Templates[0].Release).To(Equal("my-release"))

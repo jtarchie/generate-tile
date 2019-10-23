@@ -192,6 +192,27 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 		attachInstanceDefinition(&jobType)
 		attachResourceDefinitions(&jobType)
 
+		manifest := map[string]interface{}{}
+		for name, _ := range spec.Properties {
+			parts := strings.Split(name, ".")
+
+			root := manifest
+			for i := 0; i < len(parts) - 1; i++ {
+				part := parts[i]
+				if _, ok := root[part]; !ok {
+					root[part] = map[string]interface{}{}
+				}
+				root = root[part].(map[string]interface{})
+			}
+			root[parts[len(parts)-1]] = fmt.Sprintf("((properties.%s))", name)
+		}
+
+		manifestYAML, err := yaml.Marshal(manifest)
+		if err != nil {
+			return tilePayload{}, err
+		}
+
+		jobType.Manifest = string(manifestYAML)
 		tile.JobTypes = append(tile.JobTypes, jobType)
 	}
 

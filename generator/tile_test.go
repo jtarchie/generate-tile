@@ -8,7 +8,7 @@ import (
 
 var _ = Describe("Generating the tile", func() {
 	When("provided specs", func() {
-		It("generates a set of properties and forms", func() {
+		FIt("generates a set of properties and forms", func() {
 			dir := createReleaseDir()
 			release, err := generator.ParseRelease(dir)
 			Expect(err).NotTo(HaveOccurred())
@@ -116,6 +116,15 @@ var _ = Describe("Generating the tile", func() {
 					Type:  "integer",
 				},
 			}))
+			Expect(jobs[0].Manifest).To(MatchYAML(`
+---
+no_namespace: ((.properties.no_namespace))
+some:
+  property: ((.properties.some.property))
+  tls_property:
+    certificate: ((.properties.tls_property.certificate))
+    private_key: ((.properties.tls_property.private_key))
+`))
 
 			Expect(jobs[0].Templates[0].Name).To(Equal("other"))
 			Expect(jobs[0].Templates[0].Release).To(Equal("my-release"))

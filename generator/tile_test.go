@@ -118,9 +118,9 @@ var _ = Describe("Generating the tile", func() {
 			}))
 			Expect(jobs[0].Manifest).To(MatchYAML(`
 ---
-no_namespace: ((.properties.no_namespace))
+no_namespace: ((.properties.no_namespace.value))
 some:
-  property: ((.properties.some.property))
+  property: ((.properties.some.property.value))
   tls_property:
     certificate: ((.properties.some.tls_property.certificate))
     private_key: ((.properties.some.tls_property.private_key))

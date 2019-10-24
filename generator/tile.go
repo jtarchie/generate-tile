@@ -236,7 +236,7 @@ func CreateManifestFromProperty(name string, property Property) (interface{}, er
 			"private_key": fmt.Sprintf("((.properties.%s.private_key))", name),
 		}, nil
 	}
-	return fmt.Sprintf("((.properties.%s))", name), nil
+	return fmt.Sprintf("((.properties.%s.value))", name), nil
 }
 
 func attachResourceDefinitions(jobType *JobType) {

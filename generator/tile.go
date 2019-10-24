@@ -193,18 +193,22 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 		attachResourceDefinitions(&jobType)
 
 		manifest := map[string]interface{}{}
-		for name, _ := range spec.Properties {
+		for name, property := range spec.Properties {
 			parts := strings.Split(name, ".")
 
 			root := manifest
-			for i := 0; i < len(parts) - 1; i++ {
+			for i := 0; i < len(parts)-1; i++ {
 				part := parts[i]
 				if _, ok := root[part]; !ok {
 					root[part] = map[string]interface{}{}
 				}
 				root = root[part].(map[string]interface{})
 			}
-			root[parts[len(parts)-1]] = fmt.Sprintf("((properties.%s))", name)
+			option, err := CreateManifestFromProperty(name, property)
+			if err != nil {
+				return tilePayload{}, fmt.Errorf("could not create manifest for property %s: %s", name, err)
+			}
+			root[parts[len(parts)-1]] = option
 		}
 
 		manifestYAML, err := yaml.Marshal(manifest)
@@ -217,6 +221,22 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 	}
 
 	return tile, nil
+}
+
+func CreateManifestFromProperty(name string, property Property) (interface{}, error) {
+	pbType, err := DeterminePropertyBlueprintType(name, property)
+	if err != nil {
+		return nil, err
+	}
+
+	switch pbType {
+	case "rsa_cert_credentials":
+		return map[string]string{
+			"certificate": fmt.Sprintf("((.properties.%s.certificate))", name),
+			"private_key": fmt.Sprintf("((.properties.%s.private_key))", name),
+		}, nil
+	}
+	return fmt.Sprintf("((.properties.%s))", name), nil
 }
 
 func attachResourceDefinitions(jobType *JobType) {

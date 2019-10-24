@@ -35,28 +35,29 @@ var _ = Describe("Generating the tile", func() {
 			Expect(ft.Description).To(Equal("Configuration settings for some"))
 			Expect(ft.PropertyInputs).To(Equal([]generator.PropertyInput{
 				{
-					Reference:   ".properties.some.property",
+					Reference:   ".properties.some__property",
 					Label:       "Some Property",
 					Description: "This property is important for something.",
 				},
 				{
-					Reference:   ".properties.some.tls_property",
+					Reference:   ".properties.some__tls_property",
 					Label:       "Some Tls Property",
 					Description: "This is a property with a type.",
 				},
 			}))
 
 			pb := tile.PropertyBlueprints
-			Expect(pb[0].Name).To(Equal(".properties.no_namespace"))
+			Expect(pb[0].Name).To(Equal("no_namespace"))
 			Expect(pb[0].Configurable).To(BeTrue())
 			Expect(pb[0].Optional).To(BeTrue())
 			Expect(pb[0].Type).To(Equal("string"))
 
-			Expect(pb[1].Name).To(Equal(".properties.some.property"))
+			Expect(pb[1].Name).To(Equal("some__property"))
 			Expect(pb[1].Type).To(Equal("integer"))
 			Expect(pb[1].Default).To(Equal(1))
+			Expect(pb[1].Optional).To(BeFalse())
 
-			Expect(pb[2].Name).To(Equal(".properties.some.tls_property"))
+			Expect(pb[2].Name).To(Equal("some__tls_property"))
 			Expect(pb[2].Type).To(Equal("rsa_cert_credentials"))
 
 			jobs := tile.JobTypes
@@ -110,7 +111,7 @@ var _ = Describe("Generating the tile", func() {
 					Configurable: true,
 					Default:      10240,
 					Constraints: generator.Constraints{
-						Min: 0,
+						Min: 10240,
 					},
 					Label: "Persistent Disk",
 					Type:  "integer",
@@ -120,11 +121,13 @@ var _ = Describe("Generating the tile", func() {
 ---
 no_namespace: ((.properties.no_namespace.value))
 some:
-  property: ((.properties.some.property.value))
+  property: ((.properties.some__property.value))
   tls_property:
-    certificate: ((.properties.some.tls_property.certificate))
-    private_key: ((.properties.some.tls_property.private_key))
+    certificate: ((.properties.some__tls_property.certificate))
+    private_key: ((.properties.some__tls_property.private_key))
 `))
+
+			Expect(jobs[0].MaxInFlight).To(Equal(1))
 
 			Expect(jobs[0].Templates[0].Name).To(Equal("other"))
 			Expect(jobs[0].Templates[0].Release).To(Equal("my-release"))
@@ -158,7 +161,7 @@ properties:
 			Expect(err).NotTo(HaveOccurred())
 
 			pb := tile.PropertyBlueprints
-			Expect(pb[0].Name).To(Equal(".properties.some.collection"))
+			Expect(pb[0].Name).To(Equal("some__collection"))
 			Expect(pb[0].PropertyBlueprints[0].Name).To(Equal("key"))
 			Expect(pb[0].PropertyBlueprints[0].Type).To(Equal("string"))
 			Expect(pb[0].PropertyBlueprints[0].Configurable).To(BeTrue())

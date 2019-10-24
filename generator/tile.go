@@ -25,7 +25,7 @@ type formType struct {
 type PropertyBlueprint struct {
 	Name               string
 	Type               string
-	Optional           bool
+	Optional           bool `yaml:",omitempty"`
 	Configurable       bool
 	Default            interface{}         `yaml:"default,omitempty"`
 	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints,omitempty"`
@@ -71,7 +71,6 @@ type JobType struct {
 	Name                string
 	ResourceLabel       string `yaml:"resource_label"`
 	Templates           []Template
-	Release             string
 	SingleAZOnly        bool                 `yaml:"single_az_only"`
 	MaxInFlight         interface{}          `yaml:"max_in_flight"`
 	UseStemcell         string               `yaml:"use_stemcell,omitempty"`
@@ -137,16 +136,18 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 			var propertyInput PropertyInput
 			propertyInput.Description = property.Description
 			propertyInput.Label = strings.Title(breakApartName(name))
-			propertyBlueprintName := fmt.Sprintf(".properties.%s", name)
-			propertyInput.Reference = propertyBlueprintName
+			propertyBlueprintName := propertyBlueprintNameFromPropertyName(name)
+			propertyInput.Reference = fmt.Sprintf(".properties.%s", propertyBlueprintName)
 
 			ft.PropertyInputs = append(ft.PropertyInputs, propertyInput)
 
 			var propertyBlueprint PropertyBlueprint
 			propertyBlueprint.Name = propertyBlueprintName
 			propertyBlueprint.Configurable = true
-			propertyBlueprint.Optional = true
 			propertyBlueprint.Default = property.Default
+			if propertyBlueprint.Default == nil {
+				propertyBlueprint.Optional = true
+			}
 
 			pbType, err := DeterminePropertyBlueprintType(name, property)
 			if err != nil {
@@ -189,6 +190,7 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 			return tilePayload{}, err
 		}
 		jobType.Templates = templates
+		jobType.MaxInFlight = 1
 		attachInstanceDefinition(&jobType)
 		attachResourceDefinitions(&jobType)
 
@@ -223,20 +225,26 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 	return tile, nil
 }
 
+func propertyBlueprintNameFromPropertyName(name string) string {
+	return strings.Join(strings.Split(name, "."), "__")
+}
+
 func CreateManifestFromProperty(name string, property Property) (interface{}, error) {
 	pbType, err := DeterminePropertyBlueprintType(name, property)
 	if err != nil {
 		return nil, err
 	}
 
+	propertyBlueprintName := propertyBlueprintNameFromPropertyName(name)
+
 	switch pbType {
 	case "rsa_cert_credentials":
 		return map[string]string{
-			"certificate": fmt.Sprintf("((.properties.%s.certificate))", name),
-			"private_key": fmt.Sprintf("((.properties.%s.private_key))", name),
+			"certificate": fmt.Sprintf("((.properties.%s.certificate))", propertyBlueprintName),
+			"private_key": fmt.Sprintf("((.properties.%s.private_key))", propertyBlueprintName),
 		}, nil
 	}
-	return fmt.Sprintf("((.properties.%s.value))", name), nil
+	return fmt.Sprintf("((.properties.%s.value))", propertyBlueprintName), nil
 }
 
 func attachResourceDefinitions(jobType *JobType) {
@@ -276,7 +284,7 @@ func attachResourceDefinitions(jobType *JobType) {
 			Configurable: true,
 			Default:      10240,
 			Constraints: Constraints{
-				Min: 0,
+				Min: 10240,
 			},
 			Label: "Persistent Disk",
 			Type:  "integer",

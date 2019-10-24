@@ -1,1 +1,17 @@
-name: Platform Automation Engine
+name: example-tile
+product_version: "0.0.1-build.0"
+minimum_version_for_upgrade: "0.0.0"
+metadata_version: "2.7"
+opsmanager_syslog: true
+label: "Example Tile"
+description: "This an example tile"
+rank: 1
+stemcell_criteria:
+  os: ubuntu-xenial
+  version: "456.30"
+  enable_patch_security_updates: true
+releases:
+- name: ((bosh_release_name))
+  file: ((bosh_release_filename))
+  version: ((bosh_release_version))
+icon_image: iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAABtJREFUOBFjYBgFoyEwGgKjITAaAqMhQJ0QAAAGVAABSI/t9QAAAABJRU5ErkJggg==

@@ -63,4 +63,6 @@ properties:
     type: certificate
   no_namespace:
     description: This property has no namespace (".") in it.
+  some_long.property:
+    description: A property.
 `

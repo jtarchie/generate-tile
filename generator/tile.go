@@ -120,7 +120,7 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 	for _, group := range groupNames {
 		var ft formType
 		ft.Name = group
-		ft.Label = strings.Title(group)
+		ft.Label = strings.Title(breakApartName(group))
 		ft.Description = fmt.Sprintf("Configuration settings for %s", group)
 
 		propertyNames := []string{}

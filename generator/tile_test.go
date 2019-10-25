@@ -46,6 +46,10 @@ var _ = Describe("Generating the tile", func() {
 				},
 			}))
 
+			ft = tile.FormTypes[2]
+			Expect(ft.Name).To(Equal("some_long"))
+			Expect(ft.Label).To(Equal("Some Long"))
+
 			pb := tile.PropertyBlueprints
 			Expect(pb[0].Name).To(Equal("no_namespace"))
 			Expect(pb[0].Configurable).To(BeTrue())
@@ -120,6 +124,8 @@ var _ = Describe("Generating the tile", func() {
 			Expect(jobs[0].Manifest).To(MatchYAML(`
 ---
 no_namespace: ((.properties.no_namespace.value))
+some_long:
+  property: ((.properties.some_long__property.value))
 some:
   property: ((.properties.some__property.value))
   tls_property:

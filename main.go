@@ -15,8 +15,7 @@ func main() {
 	_, err := flags.Parse(&command)
 	if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
 		os.Exit(0)
-	} else {
+	} else if err != nil {
 		log.Fatalf("could not run executable: %s", err)
 	}
 }
-

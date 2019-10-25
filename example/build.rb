@@ -24,7 +24,11 @@ File.write('metadata.yml', manifest)
 
 releases_dir = File.join(dir, 'releases')
 FileUtils.mkdir_p(releases_dir)
-FileUtils.cp(release_path, File.join(releases_dir, File.basename(release_path)))
+if ENV['DEBUG'] != ''
+  FileUtils.touch(File.join(releases_dir, File.basename(release_path)))
+else
+  FileUtils.cp(release_path, File.join(releases_dir, File.basename(release_path)))
+end
 
 migrations_dir = File.join(dir, 'migrations')
 FileUtils.mkdir_p(File.join(migrations_dir, 'v1'))
@@ -34,7 +38,7 @@ product_path = File.join(workspace, 'example-0.0-build.0.pivotal')
 begin
   FileUtils.rm(product_path)
 rescue StandardError
-    # do nothing as the file probably does not exist
+  # do nothing as the file probably does not exist
 end
 
 # change to the directory

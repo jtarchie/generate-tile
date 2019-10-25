@@ -1,5 +1,5 @@
 .idea
 main
 *.pivotal
-./metadata.yml
+/metadata.yml
 .DS_Store

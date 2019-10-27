@@ -133,44 +133,11 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 		for _, name := range propertyNames {
 			property := propertiesByGroup[group][name]
 
-			var propertyInput PropertyInput
-			propertyInput.Description = property.Description
-			propertyInput.Label = strings.Title(breakApartName(name))
-			propertyBlueprintName := propertyBlueprintNameFromPropertyName(name)
-			propertyInput.Reference = fmt.Sprintf(".properties.%s", propertyBlueprintName)
+			createPropertyInput(property, name, &ft)
 
-			ft.PropertyInputs = append(ft.PropertyInputs, propertyInput)
-
-			var propertyBlueprint PropertyBlueprint
-			propertyBlueprint.Name = propertyBlueprintName
-			propertyBlueprint.Configurable = true
-			propertyBlueprint.Default = property.Default
-			if propertyBlueprint.Default == nil {
-				propertyBlueprint.Optional = true
-			}
-
-			pbType, err := DeterminePropertyBlueprintType(name, property)
+			propertyBlueprint, err := createPropertyBlueprint(property, name)
 			if err != nil {
 				return tilePayload{}, err
-			}
-
-			propertyBlueprint.Type = pbType
-
-			if propertyBlueprint.Type == "collection" {
-				propertyBlueprint.PropertyBlueprints = []PropertyBlueprint{
-					{
-						Name:         "key",
-						Type:         "string",
-						Optional:     true,
-						Configurable: true,
-					},
-					{
-						Name:         "value",
-						Type:         "string",
-						Optional:     true,
-						Configurable: true,
-					},
-				}
 			}
 
 			tile.PropertyBlueprints = append(tile.PropertyBlueprints, propertyBlueprint)
@@ -180,49 +147,102 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 	}
 
 	for _, spec := range specs {
-		var jobType JobType
-
-		jobType.Name = spec.Name
-		jobType.ResourceLabel = strings.Title(breakApartName(spec.Name))
-
-		templates, err := generateTemplateForSpec(release, spec)
+		jobType,  err := createJob(spec, release)
 		if err != nil {
 			return tilePayload{}, err
 		}
-		jobType.Templates = templates
-		jobType.MaxInFlight = 1
-		attachInstanceDefinition(&jobType)
-		attachResourceDefinitions(&jobType)
-
-		manifest := map[string]interface{}{}
-		for name, property := range spec.Properties {
-			parts := strings.Split(name, ".")
-
-			root := manifest
-			for i := 0; i < len(parts)-1; i++ {
-				part := parts[i]
-				if _, ok := root[part]; !ok {
-					root[part] = map[string]interface{}{}
-				}
-				root = root[part].(map[string]interface{})
-			}
-			option, err := CreateManifestFromProperty(name, property)
-			if err != nil {
-				return tilePayload{}, fmt.Errorf("could not create manifest for property %s: %s", name, err)
-			}
-			root[parts[len(parts)-1]] = option
-		}
-
-		manifestYAML, err := yaml.Marshal(manifest)
-		if err != nil {
-			return tilePayload{}, err
-		}
-
-		jobType.Manifest = string(manifestYAML)
 		tile.JobTypes = append(tile.JobTypes, jobType)
 	}
 
 	return tile, nil
+}
+
+func createJob(spec SpecPayload, release BoshReleasePayload) (JobType, error) {
+	var jobType JobType
+
+	jobType.Name = spec.Name
+	jobType.ResourceLabel = strings.Title(breakApartName(spec.Name))
+	templates, err := generateTemplateForSpec(release, spec)
+	if err != nil {
+		return JobType{},  err
+	}
+
+	jobType.Templates = templates
+	jobType.MaxInFlight = 1
+
+	attachInstanceDefinition(&jobType)
+	attachResourceDefinitions(&jobType)
+
+	manifest := map[string]interface{}{}
+	for name, property := range spec.Properties {
+		parts := strings.Split(name, ".")
+
+		root := manifest
+		for i := 0; i < len(parts)-1; i++ {
+			part := parts[i]
+			if _, ok := root[part]; !ok {
+				root[part] = map[string]interface{}{}
+			}
+			root = root[part].(map[string]interface{})
+		}
+		option, err := CreateManifestFromProperty(name, property)
+		if err != nil {
+			return JobType{}, fmt.Errorf("could not create manifest for property %s: %s", name, err)
+		}
+		root[parts[len(parts)-1]] = option
+	}
+
+	manifestYAML, err := yaml.Marshal(manifest)
+	if err != nil {
+		return JobType{}, err
+	}
+
+	jobType.Manifest = string(manifestYAML)
+	return jobType, nil
+}
+
+func createPropertyInput(property Property, name string, ft *formType) {
+	var propertyInput PropertyInput
+	propertyInput.Description = property.Description
+	propertyInput.Label = strings.Title(breakApartName(name))
+	propertyInput.Reference = fmt.Sprintf(".properties.%s", propertyBlueprintNameFromPropertyName(name))
+	ft.PropertyInputs = append(ft.PropertyInputs, propertyInput)
+}
+
+func createPropertyBlueprint(property Property, name string) (PropertyBlueprint, error) {
+	var propertyBlueprint PropertyBlueprint
+	propertyBlueprint.Name = propertyBlueprintNameFromPropertyName(name)
+	propertyBlueprint.Configurable = true
+	propertyBlueprint.Default = property.Default
+	if propertyBlueprint.Default == nil {
+		propertyBlueprint.Optional = true
+	}
+
+	pbType, err := DeterminePropertyBlueprintType(name, property)
+	if err != nil {
+		return PropertyBlueprint{}, err
+	}
+
+	propertyBlueprint.Type = pbType
+
+	if propertyBlueprint.Type == "collection" {
+		propertyBlueprint.PropertyBlueprints = []PropertyBlueprint{
+			{
+				Name:         "key",
+				Type:         "string",
+				Optional:     true,
+				Configurable: true,
+			},
+			{
+				Name:         "value",
+				Type:         "string",
+				Optional:     true,
+				Configurable: true,
+			},
+		}
+	}
+
+	return propertyBlueprint, nil
 }
 
 func propertyBlueprintNameFromPropertyName(name string) string {

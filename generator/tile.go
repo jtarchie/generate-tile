@@ -213,7 +213,7 @@ func createPropertyBlueprint(property Property, name string) (PropertyBlueprint,
 	var propertyBlueprint PropertyBlueprint
 	propertyBlueprint.Name = propertyBlueprintNameFromPropertyName(name)
 	propertyBlueprint.Configurable = true
-	propertyBlueprint.Default = property.Default
+	propertyBlueprint.Default = DeterminePropertyBlueprintDefault(property)
 	if propertyBlueprint.Default == nil {
 		propertyBlueprint.Optional = true
 	}
@@ -243,6 +243,10 @@ func createPropertyBlueprint(property Property, name string) (PropertyBlueprint,
 	}
 
 	return propertyBlueprint, nil
+}
+
+func DeterminePropertyBlueprintDefault(property Property) interface{} {
+	return property.Default
 }
 
 func propertyBlueprintNameFromPropertyName(name string) string {

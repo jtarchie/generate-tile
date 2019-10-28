@@ -42,6 +42,14 @@ var _ = Describe("Determining the property type", func() {
 		Entry("when the name includes ip", "serverip", generator.Property{}, "string"),
 		Entry("when the name includes _ip_", "server_ip_", generator.Property{}, "string"),
 
+		Entry("default has higher precedence",
+			"", generator.Property{
+				Default: true,
+				Example: "true",
+			},
+			"boolean",
+		),
+
 		Entry("when the example is a map", "", generator.Property{Example: map[interface{}]interface{}{
 			"name": "value",
 		}}, "collection"),

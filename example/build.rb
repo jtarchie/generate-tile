@@ -46,3 +46,5 @@ end
 Dir.chdir(dir) do
   system("zip -r #{product_path} migrations releases metadata")
 end
+
+system("go run main.go validate --path #{product_path}")

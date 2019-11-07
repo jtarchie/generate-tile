@@ -2,9 +2,11 @@ package commands_test
 
 import (
 	"github.com/jtarchie/generate-tile/commands"
+	"github.com/jtarchie/generate-tile/metadata"
 	"github.com/mholt/archiver"
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/gomega/gbytes"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -15,7 +17,7 @@ import (
 var _ = Describe("Validate", func() {
 	It("writes validation errors to stdout", func() {
 		stdout := gbytes.NewBuffer()
-		productPath := createProductFile()
+		productPath := createProductFile(metadata.Payload{})
 		command := commands.Validate{
 			Path: productPath,
 			Stdout: stdout,
@@ -26,7 +28,7 @@ var _ = Describe("Validate", func() {
 	})
 })
 
-func createProductFile() string {
+func createProductFile(payload metadata.Payload) string {
 	dir, err := ioutil.TempDir("", "")
 	Expect(err).NotTo(HaveOccurred())
 
@@ -39,7 +41,10 @@ func createProductFile() string {
 	metadataFile, err := os.Create(filepath.Join(metadataPath, "metadata.yml"))
 	Expect(err).NotTo(HaveOccurred())
 
-	_, err = metadataFile.Write([]byte(``))
+	contents, err := yaml.Marshal(payload)
+	Expect(err).NotTo(HaveOccurred())
+
+	_, err = metadataFile.Write(contents)
 	Expect(err).NotTo(HaveOccurred())
 	err = metadataFile.Close()
 	Expect(err).NotTo(HaveOccurred())

@@ -3,6 +3,7 @@ module github.com/jtarchie/generate-tile
 go 1.13
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/bmatcuk/doublestar v1.1.5
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/frankban/quicktest v1.5.0 // indirect

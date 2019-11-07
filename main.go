@@ -3,12 +3,12 @@ package main
 import (
 	"github.com/jessevdk/go-flags"
 	"github.com/jtarchie/generate-tile/commands"
-	"log"
 	"os"
 )
 
 var command struct {
 	Generate commands.Generate `command:"generate"`
+	Preview  commands.Preview  `command:"preview"`
 }
 
 func main() {
@@ -16,6 +16,6 @@ func main() {
 	if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
 		os.Exit(0)
 	} else if err != nil {
-		log.Fatalf("could not run executable: %s", err)
+		os.Exit(1)
 	}
 }

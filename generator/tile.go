@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"github.com/jtarchie/generate-tile/metadata"
 	"regexp"
 	"sort"
 	"strings"
@@ -9,87 +10,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type PropertyInput struct {
-	Reference   string
-	Label       string
-	Description string
-}
-
-type formType struct {
-	Name           string
-	Label          string
-	Description    string
-	PropertyInputs []PropertyInput `yaml:"property_inputs"`
-}
-
-type PropertyBlueprint struct {
-	Name               string
-	Type               string
-	Optional           bool `yaml:",omitempty"`
-	Configurable       bool
-	Default            interface{}         `yaml:"default,omitempty"`
-	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints,omitempty"`
-}
-
-type Template struct {
-	Name     string
-	Release  string
-	Consumes string `yaml:",omitempty"`
-	Provides string `yaml:",omitempty"`
-}
-
-type ResourceDefinition struct {
-	Name         string
-	Configurable bool
-	Default      interface{}
-	Constraints  Constraints `yaml:",omitempty"`
-	Label        string
-	Type         string
-}
-
-type Constraints struct {
-	Max int `yaml:",omitempty"`
-	Min int `yaml:",omitempty"`
-}
-
-type ZeroIf struct {
-	PropertyReference string   `yaml:"property_reference"`
-	PropertyValues    []string `yaml:"property_values"`
-}
-
-type InstanceDefinition struct {
-	Name         string
-	Label        string
-	Configurable bool
-	Default      int
-	Constraints  Constraints `yaml:",omitempty"`
-	Type         string
-	ZeroIf       ZeroIf `yaml:"zero_if,omitempty"`
-}
-
-type JobType struct {
-	Name                string
-	ResourceLabel       string `yaml:"resource_label"`
-	Templates           []Template
-	SingleAZOnly        bool                 `yaml:"single_az_only"`
-	MaxInFlight         interface{}          `yaml:"max_in_flight"`
-	UseStemcell         string               `yaml:"use_stemcell,omitempty"`
-	ResourceDefinitions []ResourceDefinition `yaml:"resource_definitions"`
-	InstanceDefinition  InstanceDefinition   `yaml:"instance_definition"`
-	Manifest            string               `yaml:",omitempty"`
-}
-
-type tilePayload struct {
-	Description        string
-	FormTypes          []formType          `yaml:"form_types"`
-	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints"`
-	JobTypes           []JobType           `yaml:"job_types"`
-}
-
-func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
+func GeneratorTile(release BoshReleasePayload) (metadata.Payload, error) {
 	specs := release.Specs
 
-	var tile tilePayload
+	var t metadata.Payload
 
 	propertiesByGroup := map[string]map[string]Property{}
 
@@ -118,7 +42,7 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 	sort.Strings(groupNames)
 
 	for _, group := range groupNames {
-		var ft formType
+		var ft metadata.FormType
 		ft.Name = group
 		ft.Label = strings.Title(breakApartName(group))
 		ft.Description = fmt.Sprintf("Configuration settings for %s", group)
@@ -137,34 +61,34 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 
 			propertyBlueprint, err := createPropertyBlueprint(property, name)
 			if err != nil {
-				return tilePayload{}, err
+				return metadata.Payload{}, err
 			}
 
-			tile.PropertyBlueprints = append(tile.PropertyBlueprints, propertyBlueprint)
+			t.PropertyBlueprints = append(t.PropertyBlueprints, propertyBlueprint)
 		}
 
-		tile.FormTypes = append(tile.FormTypes, ft)
+		t.FormTypes = append(t.FormTypes, ft)
 	}
 
 	for _, spec := range specs {
 		jobType, err := createJob(spec, release)
 		if err != nil {
-			return tilePayload{}, err
+			return metadata.Payload{}, err
 		}
-		tile.JobTypes = append(tile.JobTypes, jobType)
+		t.JobTypes = append(t.JobTypes, jobType)
 	}
 
-	return tile, nil
+	return t, nil
 }
 
-func createJob(spec SpecPayload, release BoshReleasePayload) (JobType, error) {
-	var jobType JobType
+func createJob(spec SpecPayload, release BoshReleasePayload) (metadata.JobType, error) {
+	var jobType metadata.JobType
 
 	jobType.Name = spec.Name
 	jobType.ResourceLabel = strings.Title(breakApartName(spec.Name))
 	templates, err := generateTemplateForSpec(release, spec)
 	if err != nil {
-		return JobType{}, err
+		return metadata.JobType{}, err
 	}
 
 	jobType.Templates = templates
@@ -187,36 +111,36 @@ func createJob(spec SpecPayload, release BoshReleasePayload) (JobType, error) {
 		}
 		option, err := CreateManifestFromProperty(name, property)
 		if err != nil {
-			return JobType{}, fmt.Errorf("could not create manifest for property %s: %s", name, err)
+			return metadata.JobType{}, fmt.Errorf("could not create manifest for property %s: %s", name, err)
 		}
 		root[parts[len(parts)-1]] = option
 	}
 
 	manifestYAML, err := yaml.Marshal(manifest)
 	if err != nil {
-		return JobType{}, err
+		return metadata.JobType{}, err
 	}
 
 	jobType.Manifest = string(manifestYAML)
 	return jobType, nil
 }
 
-func createPropertyInput(property Property, name string, ft *formType) {
-	var propertyInput PropertyInput
+func createPropertyInput(property Property, name string, ft *metadata.FormType) {
+	var propertyInput metadata.PropertyInput
 	propertyInput.Description = property.Description
 	propertyInput.Label = strings.Title(breakApartName(name))
 	propertyInput.Reference = fmt.Sprintf(".properties.%s", propertyBlueprintNameFromPropertyName(name))
 	ft.PropertyInputs = append(ft.PropertyInputs, propertyInput)
 }
 
-func createPropertyBlueprint(property Property, name string) (PropertyBlueprint, error) {
-	var propertyBlueprint PropertyBlueprint
+func createPropertyBlueprint(property Property, name string) (metadata.PropertyBlueprint, error) {
+	var propertyBlueprint metadata.PropertyBlueprint
 	propertyBlueprint.Name = propertyBlueprintNameFromPropertyName(name)
 	propertyBlueprint.Configurable = true
 
 	def, err := DeterminePropertyBlueprintDefault(name, property)
 	if err != nil {
-		return PropertyBlueprint{}, err
+		return metadata.PropertyBlueprint{}, err
 	}
 	propertyBlueprint.Default = def
 	if propertyBlueprint.Default == nil {
@@ -225,13 +149,13 @@ func createPropertyBlueprint(property Property, name string) (PropertyBlueprint,
 
 	pbType, err := DeterminePropertyBlueprintType(name, property)
 	if err != nil {
-		return PropertyBlueprint{}, err
+		return metadata.PropertyBlueprint{}, err
 	}
 
 	propertyBlueprint.Type = pbType
 
 	if propertyBlueprint.Type == "collection" {
-		propertyBlueprint.PropertyBlueprints = []PropertyBlueprint{
+		propertyBlueprint.PropertyBlueprints = []metadata.PropertyBlueprint{
 			{
 				Name:         "key",
 				Type:         "string",
@@ -293,13 +217,13 @@ func CreateManifestFromProperty(name string, property Property) (interface{}, er
 	return fmt.Sprintf("((.properties.%s.value))", propertyBlueprintName), nil
 }
 
-func attachResourceDefinitions(jobType *JobType) {
-	jobType.ResourceDefinitions = []ResourceDefinition{
+func attachResourceDefinitions(jobType *metadata.JobType) {
+	jobType.ResourceDefinitions = []metadata.ResourceDefinition{
 		{
 			Name:         "cpu",
 			Configurable: true,
 			Default:      1,
-			Constraints: Constraints{
+			Constraints: metadata.Constraints{
 				Min: 1,
 			},
 			Label: "CPU",
@@ -309,7 +233,7 @@ func attachResourceDefinitions(jobType *JobType) {
 			Name:         "ram",
 			Configurable: true,
 			Default:      8192,
-			Constraints: Constraints{
+			Constraints: metadata.Constraints{
 				Min: 8192,
 			},
 			Label: "RAM",
@@ -319,7 +243,7 @@ func attachResourceDefinitions(jobType *JobType) {
 			Name:         "ephemeral_disk",
 			Configurable: true,
 			Default:      10240,
-			Constraints: Constraints{
+			Constraints: metadata.Constraints{
 				Min: 10240,
 			},
 			Label: "Ephemeral Disk",
@@ -329,7 +253,7 @@ func attachResourceDefinitions(jobType *JobType) {
 			Name:         "persistent_disk",
 			Configurable: true,
 			Default:      10240,
-			Constraints: Constraints{
+			Constraints: metadata.Constraints{
 				Min: 10240,
 			},
 			Label: "Persistent Disk",
@@ -338,13 +262,13 @@ func attachResourceDefinitions(jobType *JobType) {
 	}
 }
 
-func attachInstanceDefinition(jobType *JobType) {
-	jobType.InstanceDefinition = InstanceDefinition{
+func attachInstanceDefinition(jobType *metadata.JobType) {
+	jobType.InstanceDefinition = metadata.InstanceDefinition{
 		Name:         "instances",
 		Label:        "Instances",
 		Configurable: true,
 		Default:      1,
-		Constraints: Constraints{
+		Constraints: metadata.Constraints{
 			Min: 1,
 		},
 		Type: "integer",
@@ -359,8 +283,8 @@ type provider struct {
 	As string
 }
 
-func generateTemplateForSpec(release BoshReleasePayload, spec SpecPayload) ([]Template, error) {
-	var template Template
+func generateTemplateForSpec(release BoshReleasePayload, spec SpecPayload) ([]metadata.Template, error) {
+	var template metadata.Template
 
 	template.Name = spec.Name
 	template.Release = release.Name
@@ -389,7 +313,7 @@ func generateTemplateForSpec(release BoshReleasePayload, spec SpecPayload) ([]Te
 	}
 	template.Provides = string(contents)
 
-	return []Template{template}, nil
+	return []metadata.Template{template}, nil
 }
 
 func generateConsumer(release BoshReleasePayload, payload SpecPayload, consume consumePayload, consuming map[string]consumer) {

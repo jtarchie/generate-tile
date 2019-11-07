@@ -2,6 +2,7 @@ package generator_test
 
 import (
 	"github.com/jtarchie/generate-tile/generator"
+	tile2 "github.com/jtarchie/generate-tile/metadata"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -21,7 +22,7 @@ var _ = Describe("Generating the tile", func() {
 			Expect(ft.Name).To(Equal("properties"))
 			Expect(ft.Label).To(Equal("Properties"))
 			Expect(ft.Description).To(Equal("Configuration settings for properties"))
-			Expect(ft.PropertyInputs).To(Equal([]generator.PropertyInput{
+			Expect(ft.PropertyInputs).To(Equal([]tile2.PropertyInput{
 				{
 					Reference:   ".properties.no_namespace",
 					Label:       "No Namespace",
@@ -33,7 +34,7 @@ var _ = Describe("Generating the tile", func() {
 			Expect(ft.Name).To(Equal("some"))
 			Expect(ft.Label).To(Equal("Some"))
 			Expect(ft.Description).To(Equal("Configuration settings for some"))
-			Expect(ft.PropertyInputs).To(Equal([]generator.PropertyInput{
+			Expect(ft.PropertyInputs).To(Equal([]tile2.PropertyInput{
 				{
 					Reference:   ".properties.some__property",
 					Label:       "Some Property",
@@ -69,22 +70,22 @@ var _ = Describe("Generating the tile", func() {
 			Expect(jobs[0].ResourceLabel).To(Equal("Other"))
 			Expect(jobs[0].SingleAZOnly).To(BeFalse())
 			Expect(jobs[0].UseStemcell).To(Equal(""))
-			Expect(jobs[0].InstanceDefinition).To(Equal(generator.InstanceDefinition{
+			Expect(jobs[0].InstanceDefinition).To(Equal(tile2.InstanceDefinition{
 				Name:         "instances",
 				Label:        "Instances",
 				Configurable: true,
-				Constraints: generator.Constraints{
+				Constraints: tile2.Constraints{
 					Min: 1,
 				},
 				Default: 1,
 				Type:    "integer",
 			}))
-			Expect(jobs[0].ResourceDefinitions).To(Equal([]generator.ResourceDefinition{
+			Expect(jobs[0].ResourceDefinitions).To(Equal([]tile2.ResourceDefinition{
 				{
 					Name:         "cpu",
 					Configurable: true,
 					Default:      1,
-					Constraints: generator.Constraints{
+					Constraints: tile2.Constraints{
 						Min: 1,
 					},
 					Label: "CPU",
@@ -94,7 +95,7 @@ var _ = Describe("Generating the tile", func() {
 					Name:         "ram",
 					Configurable: true,
 					Default:      8192,
-					Constraints: generator.Constraints{
+					Constraints: tile2.Constraints{
 						Min: 8192,
 					},
 					Label: "RAM",
@@ -104,7 +105,7 @@ var _ = Describe("Generating the tile", func() {
 					Name:         "ephemeral_disk",
 					Configurable: true,
 					Default:      10240,
-					Constraints: generator.Constraints{
+					Constraints: tile2.Constraints{
 						Min: 10240,
 					},
 					Label: "Ephemeral Disk",
@@ -114,7 +115,7 @@ var _ = Describe("Generating the tile", func() {
 					Name:         "persistent_disk",
 					Configurable: true,
 					Default:      10240,
-					Constraints: generator.Constraints{
+					Constraints: tile2.Constraints{
 						Min: 10240,
 					},
 					Label: "Persistent Disk",

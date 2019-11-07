@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jtarchie/generate-tile/metadata"
 	"html/template"
-	"io"
 	"net/http"
 )
 
@@ -49,7 +48,7 @@ var htmlTemplate = `
 <div class="form-group">
   {{ if eq $p.Type "string"}}
     <label for="{{$p.Name}}">{{.Label}}</label>
-    <input type="text" class="form-control" id="{{$p.Name}}">
+    <input type="text" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
     <small class="form-text text-muted">{{.Description}}</small>
   {{end}}
 </div>
@@ -96,7 +95,7 @@ func (p Preview) Execute(_ []string) error {
 	}
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
-		_, _ = io.Copy(response, contents)
+		_ = t.Execute(response, payload)
 	})
 
 	fmt.Printf("listening on http://localhost:%d\n", p.Port)

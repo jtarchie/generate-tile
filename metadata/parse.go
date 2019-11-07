@@ -94,13 +94,13 @@ type Release struct {
 
 type Payload struct {
 	Description              string
-	FormTypes                []FormType `yaml:"form_types"`
+	FormTypes                []FormType `yaml:"form_types" validate:"dive"`
 	IconImage                string     `yaml:"icon_image"`
 	JobTypes                 []JobType  `yaml:"job_types"`
 	Label                    string
-	MetadataVersion          string `yaml:"metadata_version"`
-	MinimumVersionForUpgrade string `yaml:"minimum_version_for_upgrade"`
-	Name                     string
+	MetadataVersion          string              `yaml:"metadata_version"`
+	MinimumVersionForUpgrade string              `yaml:"minimum_version_for_upgrade"`
+	Name                     string              `validate:"required"`
 	OpsmanagerSyslog         bool                `yaml:"opsmanager_syslog"`
 	ProductVersion           string              `yaml:"product_version"`
 	PropertyBlueprints       []PropertyBlueprint `yaml:"property_blueprints"`

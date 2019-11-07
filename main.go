@@ -9,6 +9,7 @@ import (
 var command struct {
 	Generate commands.Generate `command:"generate"`
 	Preview  commands.Preview  `command:"preview"`
+	Validate commands.Validate `command:"validate"`
 }
 
 func main() {

@@ -2,13 +2,15 @@ package commands
 
 import (
 	"fmt"
+	"io"
 	"sort"
 
 	"github.com/jtarchie/generate-tile/metadata"
 )
 
 type Validate struct {
-	Path string `long:"path" required:"true" description:"path to the pivotal file"`
+	Path   string `long:"path" required:"true" description:"path to the pivotal file"`
+	Stdout io.Writer
 }
 
 func (p Validate) Execute(_ []string) error {
@@ -30,7 +32,7 @@ func (p Validate) Execute(_ []string) error {
 	sort.Strings(keys)
 
 	for _, key := range keys {
-		fmt.Printf("%s: %s\n", key, validations[key])
+		_, _ = fmt.Fprintf(p.Stdout, "%s: %s\n", key, validations[key])
 	}
 
 	return nil

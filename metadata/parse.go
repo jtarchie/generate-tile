@@ -135,10 +135,6 @@ func FromTile(tilePath string) (Payload, error) {
 		return payload, fmt.Errorf("could not find metadata file in %s: %s", tilePath, err)
 	}
 
-	if contents.Len() == 0 {
-		return payload, fmt.Errorf("could not find metadata file in %s", tilePath)
-	}
-
 	err = yaml.UnmarshalStrict(contents.Bytes(), &payload)
 	if err != nil {
 		return payload, fmt.Errorf("could not unmarshal %s: %s", tilePath, err)

@@ -14,6 +14,10 @@ var command struct {
 }
 
 func main() {
+	command.Validate = commands.Validate{
+		Stdout: os.Stdout,
+	}
+
 	_, err := flags.Parse(&command)
 	if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
 		os.Exit(0)

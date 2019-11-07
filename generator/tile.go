@@ -45,7 +45,7 @@ func GeneratorTile(release BoshReleasePayload) (metadata.Payload, error) {
 		var ft metadata.FormType
 		ft.Name = group
 		ft.Label = strings.Title(breakApartName(group))
-		ft.Description = fmt.Sprintf("Configuration settings for %s", group)
+		ft.Description = fmt.Sprintf("Configuration settings for %s", ft.Label)
 
 		propertyNames := []string{}
 		for name := range propertiesByGroup[group] {

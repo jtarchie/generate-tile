@@ -21,7 +21,7 @@ var _ = Describe("Generating the tile", func() {
 			ft := tile.FormTypes[0]
 			Expect(ft.Name).To(Equal("properties"))
 			Expect(ft.Label).To(Equal("Properties"))
-			Expect(ft.Description).To(Equal("Configuration settings for properties"))
+			Expect(ft.Description).To(Equal("Configuration settings for Properties"))
 			Expect(ft.PropertyInputs).To(Equal([]tile2.PropertyInput{
 				{
 					Reference:   ".properties.no_namespace",
@@ -33,7 +33,7 @@ var _ = Describe("Generating the tile", func() {
 			ft = tile.FormTypes[1]
 			Expect(ft.Name).To(Equal("some"))
 			Expect(ft.Label).To(Equal("Some"))
-			Expect(ft.Description).To(Equal("Configuration settings for some"))
+			Expect(ft.Description).To(Equal("Configuration settings for Some"))
 			Expect(ft.PropertyInputs).To(Equal([]tile2.PropertyInput{
 				{
 					Reference:   ".properties.some__property",

@@ -66,12 +66,8 @@ var htmlTemplate = `
 func AsHTML(payload metadata.Payload) ([]byte, error) {
 	t, err := template.New("preview").Funcs(template.FuncMap{
 		"getProperty": func(pi metadata.PropertyInput) metadata.PropertyBlueprint {
-			for _, pb := range payload.PropertyBlueprints {
-				if fmt.Sprintf(".properties.%s", pb.Name) == pi.Reference {
-					return pb
-				}
-			}
-			return metadata.PropertyBlueprint{}
+			pb, _ := payload.FindPropertyBlueprintFromPropertyInput(pi)
+			return pb
 		},
 	}).Parse(htmlTemplate)
 	if err != nil {

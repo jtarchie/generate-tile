@@ -14,7 +14,7 @@ import (
 type PropertyInput struct {
 	Description string
 	Label       string
-	Reference   string
+	Reference   string `validate:"property-exists"`
 }
 
 type FormType struct {
@@ -30,7 +30,7 @@ type PropertyBlueprint struct {
 	Name               string              `validate:"required"`
 	Optional           bool                `yaml:",omitempty"`
 	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints,omitempty" validate:"dive"`
-	Type               string              `validate:"required"`
+	Type               string              `validate:"required,oneof=boolean ca_certificate collection disk_type_dropdown domain dropdown_select email http_url integer ip_address ip_ranges ldap_url multi_select_options network_address network_address_list port rsa_cert_credentials rsa_pkey_credentials salted_credentials secret selector service_network_az_multi_select service_network_az_single_select simple_credentials smtp_authentication stemcell_selector string_list string text uuid vm_type_dropdown wildcard_domain"`
 }
 
 type Template struct {
@@ -76,7 +76,7 @@ type JobType struct {
 	Name                string               `validate:"required"`
 	ResourceDefinitions []ResourceDefinition `yaml:"resource_definitions" validate:"required,dive"`
 	ResourceLabel       string               `yaml:"resource_label" validate:"required"`
-	SingleAZOnly        bool                 `yaml:"single_az_only" validate:"required"`
+	SingleAZOnly        bool                 `yaml:"single_az_only"`
 	Templates           []Template           `validate:"required,dive"`
 	UseStemcell         string               `yaml:"use_stemcell,omitempty"`
 }

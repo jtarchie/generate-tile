@@ -1,4 +1,4 @@
-#name: example-tile
+name: example-tile
 product_version: "0.0.1-build.0"
 minimum_version_for_upgrade: "0.0.0"
 metadata_version: "2.7"

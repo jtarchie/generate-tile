@@ -28,6 +28,9 @@ var htmlTemplate = `
 <body>
 <div class="container-fluid">
   <div class="row">
+    <h1>{{.Label}}</h1>
+  </div>
+  <div class="row">
     <div class="col-4">
       <nav class="nav nav-pills flex-column" id="form-types" role="tablist">
         {{ range $index, $ft := .FormTypes }}
@@ -40,6 +43,11 @@ var htmlTemplate = `
         {{range $index, $ft := .FormTypes}}
           <div class="tab-pane {{if eq $index 0}}active{{end}}" id="{{$ft.Name}}" role="tabpanel" aria-labelledby="{{$ft.Name}}-tab">
             <p>{{$ft.Description}}</p>
+            <form id="form-{{$ft.Name}}">
+              {{range .PropertyInputs}}
+              {{end}}
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
           </div>
         {{end}}
       </div>

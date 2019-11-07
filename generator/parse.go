@@ -2,12 +2,13 @@ package generator
 
 import (
 	"fmt"
-	"github.com/bmatcuk/doublestar"
-	"github.com/mholt/archiver"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/bmatcuk/doublestar"
+	"github.com/mholt/archiver"
 
 	"gopkg.in/yaml.v2"
 )

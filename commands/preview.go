@@ -3,9 +3,10 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"github.com/jtarchie/generate-tile/metadata"
 	"html/template"
 	"net/http"
+
+	"github.com/jtarchie/generate-tile/metadata"
 )
 
 type Preview struct {
@@ -77,7 +78,7 @@ func (p Preview) Execute(_ []string) error {
 	t, err := template.New("preview").Funcs(template.FuncMap{
 		"getProperty": func(pi metadata.PropertyInput) metadata.PropertyBlueprint {
 			for _, pb := range payload.PropertyBlueprints {
-				if fmt.Sprintf(".properties.%s",pb.Name) == pi.Reference {
+				if fmt.Sprintf(".properties.%s", pb.Name) == pi.Reference {
 					return pb
 				}
 			}
@@ -99,5 +100,5 @@ func (p Preview) Execute(_ []string) error {
 	})
 
 	fmt.Printf("listening on http://localhost:%d\n", p.Port)
-	return http.ListenAndServe(fmt.Sprintf(":%d",p.Port), nil)
+	return http.ListenAndServe(fmt.Sprintf(":%d", p.Port), nil)
 }

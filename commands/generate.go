@@ -2,10 +2,11 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
+
 	"github.com/imdario/mergo"
 	"github.com/jtarchie/generate-tile/generator"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 type Generate struct {
@@ -19,7 +20,7 @@ func (g Generate) Execute(_ []string) error {
 		return fmt.Errorf("tile creation failed: %s", err)
 	}
 
-	if	g.MergingFile != "" {
+	if g.MergingFile != "" {
 		contents, err = mergeWithContents(g.MergingFile, contents)
 		if err != nil {
 			return fmt.Errorf("cannot merge file: %s", err)

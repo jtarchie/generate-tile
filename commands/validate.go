@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"sort"
+
 	"github.com/jtarchie/generate-tile/metadata"
 )
 
@@ -20,8 +22,15 @@ func (p Validate) Execute(_ []string) error {
 		return fmt.Errorf("could not determine validations on tile: %s", err)
 	}
 
-	for field, msg := range validations {
-		fmt.Printf("%s: %s\n", field, msg)
+	keys := []string{}
+	for field, _ := range validations {
+		keys = append(keys, field)
+	}
+
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		fmt.Printf("%s: %s\n", key, validations[key])
 	}
 
 	return nil

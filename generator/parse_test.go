@@ -2,10 +2,11 @@ package generator_test
 
 import (
 	"fmt"
-	"github.com/mholt/archiver"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/mholt/archiver"
 
 	"github.com/jtarchie/generate-tile/generator"
 	. "github.com/onsi/ginkgo"

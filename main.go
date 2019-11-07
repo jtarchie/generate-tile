@@ -1,9 +1,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/jessevdk/go-flags"
 	"github.com/jtarchie/generate-tile/commands"
-	"os"
 )
 
 var command struct {

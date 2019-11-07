@@ -2,10 +2,11 @@ package generator
 
 import (
 	"fmt"
-	"github.com/jtarchie/generate-tile/metadata"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/jtarchie/generate-tile/metadata"
 
 	"gopkg.in/yaml.v2"
 )

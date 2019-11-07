@@ -18,7 +18,7 @@ var _ = Describe("Determining the property default value", func() {
 		Entry("default is a boolean", generator.Property{Default: true}, BeTrue()),
 		Entry("default is a integer", generator.Property{Default: 1}, Equal(1)),
 		Entry("default is a string", generator.Property{Default: "asdf"}, Equal("asdf")),
-		Entry("default is a array of strings", generator.Property{Default: []interface{}{"a","b"}}, Equal("a,b")),
+		Entry("default is a array of strings", generator.Property{Default: []interface{}{"a", "b"}}, Equal("a,b")),
 		Entry("default is a map", generator.Property{Default: map[interface{}]interface{}{}}, BeNil()),
 	)
 })

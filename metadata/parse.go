@@ -4,10 +4,11 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"github.com/mholt/archiver"
-	"gopkg.in/yaml.v2"
 	"io"
 	"regexp"
+
+	"github.com/mholt/archiver"
+	"gopkg.in/yaml.v2"
 )
 
 type PropertyInput struct {
@@ -18,34 +19,34 @@ type PropertyInput struct {
 
 type FormType struct {
 	Description    string
-	Label          string
-	Name           string
-	PropertyInputs []PropertyInput `yaml:"property_inputs"`
+	Label          string          `validate:"required"`
+	Name           string          `validate:"required"`
+	PropertyInputs []PropertyInput `yaml:"property_inputs" validate:"required,dive"`
 }
 
 type PropertyBlueprint struct {
 	Configurable       bool
-	Default            interface{} `yaml:"default,omitempty"`
-	Name               string
+	Default            interface{}         `yaml:"default,omitempty"`
+	Name               string              `validate:"required"`
 	Optional           bool                `yaml:",omitempty"`
-	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints,omitempty"`
-	Type               string
+	PropertyBlueprints []PropertyBlueprint `yaml:"property_blueprints,omitempty" validate:"dive"`
+	Type               string              `validate:"required"`
 }
 
 type Template struct {
 	Consumes string `yaml:",omitempty"`
-	Name     string
+	Name     string `validate:"required"`
 	Provides string `yaml:",omitempty"`
-	Release  string
+	Release  string `validate:"required"`
 }
 
 type ResourceDefinition struct {
 	Configurable bool
 	Constraints  Constraints `yaml:",omitempty"`
 	Default      interface{}
-	Label        string
-	Name         string
-	Type         string
+	Label        string `validate:"required"`
+	Name         string `validate:"required"`
+	Type         string `validate:"required"`
 }
 
 type Constraints struct {
@@ -69,44 +70,44 @@ type InstanceDefinition struct {
 }
 
 type JobType struct {
-	InstanceDefinition  InstanceDefinition `yaml:"instance_definition"`
-	Manifest            string             `yaml:",omitempty"`
-	MaxInFlight         interface{}        `yaml:"max_in_flight"`
-	Name                string
-	ResourceDefinitions []ResourceDefinition `yaml:"resource_definitions"`
-	ResourceLabel       string               `yaml:"resource_label"`
-	SingleAZOnly        bool                 `yaml:"single_az_only"`
-	Templates           []Template
-	UseStemcell         string `yaml:"use_stemcell,omitempty"`
+	InstanceDefinition  InstanceDefinition   `yaml:"instance_definition" validate:"required"`
+	Manifest            string               `yaml:",omitempty"`
+	MaxInFlight         interface{}          `yaml:"max_in_flight" validate:"required"`
+	Name                string               `validate:"required"`
+	ResourceDefinitions []ResourceDefinition `yaml:"resource_definitions" validate:"required,dive"`
+	ResourceLabel       string               `yaml:"resource_label" validate:"required"`
+	SingleAZOnly        bool                 `yaml:"single_az_only" validate:"required"`
+	Templates           []Template           `validate:"required,dive"`
+	UseStemcell         string               `yaml:"use_stemcell,omitempty"`
 }
 
 type StemcellCriteria struct {
-	EnablePatchSecurityUpdates bool `yaml:"enable_patch_security_updates"`
-	OS                         string
-	Version                    string
+	EnablePatchSecurityUpdates bool   `yaml:"enable_patch_security_updates"`
+	OS                         string `validate:"required"`
+	Version                    string `validate:"required"`
 }
 
 type Release struct {
-	File    string
-	Name    string
-	Version string
+	File    string `validate:"required"`
+	Name    string `validate:"required"`
+	Version string `validate:"required"`
 }
 
 type Payload struct {
 	Description              string
 	FormTypes                []FormType `yaml:"form_types" validate:"dive"`
-	IconImage                string     `yaml:"icon_image"`
-	JobTypes                 []JobType  `yaml:"job_types"`
+	IconImage                string     `yaml:"icon_image" validate:"required"`
+	JobTypes                 []JobType  `yaml:"job_types" validate:"dive"`
 	Label                    string
 	MetadataVersion          string              `yaml:"metadata_version"`
-	MinimumVersionForUpgrade string              `yaml:"minimum_version_for_upgrade"`
+	MinimumVersionForUpgrade string              `yaml:"minimum_version_for_upgrade" validate:"required"`
 	Name                     string              `validate:"required"`
 	OpsmanagerSyslog         bool                `yaml:"opsmanager_syslog"`
-	ProductVersion           string              `yaml:"product_version"`
-	PropertyBlueprints       []PropertyBlueprint `yaml:"property_blueprints"`
+	ProductVersion           string              `yaml:"product_version" validate:"required"`
+	PropertyBlueprints       []PropertyBlueprint `yaml:"property_blueprints" validate:"dive"`
 	Rank                     int
-	Releases                 []Release
-	StemcellCriteria         StemcellCriteria `yaml:"stemcell_criteria"`
+	Releases                 []Release        `validate:"required,dive"`
+	StemcellCriteria         StemcellCriteria `yaml:"stemcell_criteria" validate:"required,dive"`
 }
 
 var metadataFile = regexp.MustCompile(`metadata\/.*\.yml`)

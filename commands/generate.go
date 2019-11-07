@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 
 	"github.com/imdario/mergo"
-	"github.com/jtarchie/generate-tile/generator"
+	"github.com/jtarchie/tile-builder/generator"
 	"gopkg.in/yaml.v2"
 )
 

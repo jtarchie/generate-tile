@@ -3,8 +3,9 @@ package render
 import (
 	"bytes"
 	"fmt"
-	"github.com/jtarchie/generate-tile/metadata"
 	"html/template"
+
+	"github.com/jtarchie/tile-builder/metadata"
 )
 
 var htmlTemplate = `

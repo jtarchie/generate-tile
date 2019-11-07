@@ -1,15 +1,16 @@
 package commands_test
 
 import (
-	"github.com/jtarchie/generate-tile/commands"
-	"github.com/jtarchie/generate-tile/metadata"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
+	"github.com/jtarchie/tile-builder/commands"
+	"github.com/jtarchie/tile-builder/metadata"
 	"github.com/mholt/archiver"
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/gomega/gbytes"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	. "github.com/onsi/gomega"
 )
@@ -19,7 +20,7 @@ var _ = Describe("Validate", func() {
 		stdout := gbytes.NewBuffer()
 		productPath := createProductFile(metadata.Payload{})
 		command := commands.Validate{
-			Path: productPath,
+			Path:   productPath,
 			Stdout: stdout,
 		}
 		err := command.Execute(nil)

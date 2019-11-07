@@ -1,4 +1,4 @@
-module github.com/jtarchie/generate-tile
+module github.com/jtarchie/tile-builder
 
 go 1.13
 

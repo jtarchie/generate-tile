@@ -2,10 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"github.com/jtarchie/generate-tile/render"
 	"net/http"
 
-	"github.com/jtarchie/generate-tile/metadata"
+	"github.com/jtarchie/tile-builder/render"
+
+	"github.com/jtarchie/tile-builder/metadata"
 )
 
 type Preview struct {

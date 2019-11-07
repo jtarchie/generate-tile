@@ -1,8 +1,8 @@
 package generator_test
 
 import (
-	"github.com/jtarchie/generate-tile/generator"
-	tile2 "github.com/jtarchie/generate-tile/metadata"
+	"github.com/jtarchie/tile-builder/generator"
+	tile2 "github.com/jtarchie/tile-builder/metadata"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

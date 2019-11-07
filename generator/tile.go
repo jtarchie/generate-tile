@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jtarchie/generate-tile/metadata"
+	"github.com/jtarchie/tile-builder/metadata"
 
 	"gopkg.in/yaml.v2"
 )

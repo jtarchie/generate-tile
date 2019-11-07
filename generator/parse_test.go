@@ -8,7 +8,7 @@ import (
 
 	"github.com/mholt/archiver"
 
-	"github.com/jtarchie/generate-tile/generator"
+	"github.com/jtarchie/tile-builder/generator"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

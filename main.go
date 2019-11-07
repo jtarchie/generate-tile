@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/jessevdk/go-flags"
-	"github.com/jtarchie/generate-tile/commands"
+	"github.com/jtarchie/tile-builder/commands"
 )
 
 var command struct {

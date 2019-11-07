@@ -2,9 +2,10 @@ package render_test
 
 import (
 	"bytes"
+
 	"github.com/PuerkitoBio/goquery"
-	"github.com/jtarchie/generate-tile/metadata"
-	"github.com/jtarchie/generate-tile/render"
+	"github.com/jtarchie/tile-builder/metadata"
+	"github.com/jtarchie/tile-builder/render"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -16,7 +17,7 @@ var _ = Describe("AsHTML", func() {
 		Expect(doc.Find(".nav .nav-link").First().Text()).To(Equal("Some Properties"))
 	})
 
-	It("generates string type as field", func(){
+	It("generates string type as field", func() {
 		doc := renderMetadata()
 		Expect(doc.Find(`.form-group input#string[type="text"]`).Length()).To(Equal(1))
 	})

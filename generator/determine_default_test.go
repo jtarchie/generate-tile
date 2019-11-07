@@ -1,7 +1,7 @@
 package generator_test
 
 import (
-	"github.com/jtarchie/generate-tile/generator"
+	"github.com/jtarchie/tile-builder/generator"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"

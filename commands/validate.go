@@ -5,7 +5,7 @@ import (
 	"io"
 	"sort"
 
-	"github.com/jtarchie/generate-tile/metadata"
+	"github.com/jtarchie/tile-builder/metadata"
 )
 
 type Validate struct {
@@ -25,7 +25,7 @@ func (p Validate) Execute(_ []string) error {
 	}
 
 	keys := []string{}
-	for field, _ := range validations {
+	for field := range validations {
 		keys = append(keys, field)
 	}
 

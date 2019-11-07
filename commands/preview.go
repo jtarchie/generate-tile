@@ -28,7 +28,7 @@ var htmlTemplate = `
 <body>
 <div class="container-fluid">
   <div class="row">
-    <h1>{{.Label}}</h1>
+    <h1>{{.Label}} @ v{{.ProductVersion}}</h1>
   </div>
   <div class="row">
     <div class="col-4">
@@ -45,6 +45,14 @@ var htmlTemplate = `
             <p>{{$ft.Description}}</p>
             <form id="form-{{$ft.Name}}">
               {{range .PropertyInputs}}
+{{ $p := getProperty . }} 
+<div class="form-group">
+  {{ if eq $p.Type "string"}}
+    <label for="{{$p.Name}}">{{.Label}}</label>
+    <input type="text" class="form-control" id="{{$p.Name}}">
+    <small class="form-text text-muted">{{.Description}}</small>
+  {{end}}
+</div>
               {{end}}
               <button type="submit" class="btn btn-primary">Submit</button>
             </form>
@@ -67,7 +75,16 @@ func (p Preview) Execute(_ []string) error {
 		return fmt.Errorf("could not load metadata from tile: %s", err)
 	}
 
-	t, err := template.New("preview").Parse(htmlTemplate)
+	t, err := template.New("preview").Funcs(template.FuncMap{
+		"getProperty": func(pi metadata.PropertyInput) metadata.PropertyBlueprint {
+			for _, pb := range payload.PropertyBlueprints {
+				if fmt.Sprintf(".properties.%s",pb.Name) == pi.Reference {
+					return pb
+				}
+			}
+			return metadata.PropertyBlueprint{}
+		},
+	}).Parse(htmlTemplate)
 	if err != nil {
 		return fmt.Errorf("could not render template: %s", err)
 	}

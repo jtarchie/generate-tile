@@ -24,7 +24,7 @@ File.write('metadata.yml', manifest)
 
 releases_dir = File.join(dir, 'releases')
 FileUtils.mkdir_p(releases_dir)
-if ENV['DEBUG'] != ''
+if ENV['DEBUG'] == '1'
   FileUtils.touch(File.join(releases_dir, File.basename(release_path)))
 else
   FileUtils.cp(release_path, File.join(releases_dir, File.basename(release_path)))

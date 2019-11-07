@@ -147,7 +147,7 @@ func GeneratorTile(release BoshReleasePayload) (tilePayload, error) {
 	}
 
 	for _, spec := range specs {
-		jobType,  err := createJob(spec, release)
+		jobType, err := createJob(spec, release)
 		if err != nil {
 			return tilePayload{}, err
 		}
@@ -164,7 +164,7 @@ func createJob(spec SpecPayload, release BoshReleasePayload) (JobType, error) {
 	jobType.ResourceLabel = strings.Title(breakApartName(spec.Name))
 	templates, err := generateTemplateForSpec(release, spec)
 	if err != nil {
-		return JobType{},  err
+		return JobType{}, err
 	}
 
 	jobType.Templates = templates
@@ -213,7 +213,12 @@ func createPropertyBlueprint(property Property, name string) (PropertyBlueprint,
 	var propertyBlueprint PropertyBlueprint
 	propertyBlueprint.Name = propertyBlueprintNameFromPropertyName(name)
 	propertyBlueprint.Configurable = true
-	propertyBlueprint.Default = DeterminePropertyBlueprintDefault(property)
+
+	def, err := DeterminePropertyBlueprintDefault(name, property)
+	if err != nil {
+		return PropertyBlueprint{}, err
+	}
+	propertyBlueprint.Default = def
 	if propertyBlueprint.Default == nil {
 		propertyBlueprint.Optional = true
 	}
@@ -245,8 +250,25 @@ func createPropertyBlueprint(property Property, name string) (PropertyBlueprint,
 	return propertyBlueprint, nil
 }
 
-func DeterminePropertyBlueprintDefault(property Property) interface{} {
-	return property.Default
+func DeterminePropertyBlueprintDefault(name string, property Property) (interface{}, error) {
+	switch v := property.Default.(type) {
+	case int, float32, float64:
+		return v, nil
+	case nil, string:
+		return v, nil
+	case bool:
+		return v, nil
+	case []interface{}:
+		list := []string{}
+		for _, item := range v {
+			list = append(list, fmt.Sprintf("%s", item))
+		}
+
+		return strings.Join(list, ","), nil
+	case map[interface{}]interface{}:
+		return nil, nil
+	}
+	return nil, fmt.Errorf("could not determine default for %s of %t", name, property.Default)
 }
 
 func propertyBlueprintNameFromPropertyName(name string) string {

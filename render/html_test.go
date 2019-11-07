@@ -2,6 +2,7 @@ package render_test
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jtarchie/tile-builder/metadata"
@@ -14,35 +15,37 @@ var _ = Describe("AsHTML", func() {
 	It("returns tabs for each form group", func() {
 		doc := renderMetadata()
 
-		Expect(doc.Find(".nav .nav-link").First().Text()).To(Equal("Some Properties"))
+		Expect(doc.Find(".nav .nav-link").First().Text()).To(Equal("boolean"))
 	})
 
-	It("generates string type as field", func() {
+	It("generates fields based on type", func() {
 		doc := renderMetadata()
+		Expect(doc.Find(`.form-group input#integer[type="number"]`).Length()).To(Equal(1))
 		Expect(doc.Find(`.form-group input#string[type="text"]`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-check input#boolean[type="checkbox"]`).Length()).To(Equal(1))
 	})
 })
 
 func renderMetadata() *goquery.Document {
-	contents, err := render.AsHTML(metadata.Payload{
-		FormTypes: []metadata.FormType{
-			{
-				Label: "Some Properties",
-				PropertyInputs: []metadata.PropertyInput{
-					{
-						Reference: ".properties.string",
-					},
+	payload := metadata.Payload{}
+	for _, t := range []string{"boolean", "integer", "string"} {
+		payload.FormTypes = append(payload.FormTypes, metadata.FormType{
+			Label: t,
+			PropertyInputs: []metadata.PropertyInput{
+				{
+					Reference: fmt.Sprintf(".properties.%s", t),
 				},
 			},
-		},
-		PropertyBlueprints: []metadata.PropertyBlueprint{
-			{
-				Name: "string",
-				Type: "string",
-			},
-		},
-	})
+		})
+		payload.PropertyBlueprints = append(payload.PropertyBlueprints, metadata.PropertyBlueprint{
+			Name: t,
+			Type: t,
+		})
+	}
+
+	contents, err := render.AsHTML(payload)
 	Expect(err).NotTo(HaveOccurred())
+
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(contents))
 	Expect(err).NotTo(HaveOccurred())
 

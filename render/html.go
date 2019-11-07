@@ -40,13 +40,27 @@ var htmlTemplate = `
             <form id="form-{{$ft.Name}}">
               {{range .PropertyInputs}}
                 {{ $p := getProperty . }} 
-                <div class="form-group">
-                  {{ if eq $p.Type "string"}}
-                    <label for="{{$p.Name}}">{{.Label}}</label>
-                    <input type="text" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
-                    <small class="form-text text-muted">{{.Description}}</small>
+                  {{ if eq $p.Type "integer"}}
+                    <div class="form-group">
+                      <label for="{{$p.Name}}">{{.Label}}</label>
+                      <input type="number" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
+                      <small class="form-text text-muted">{{.Description}}</small>
+                    </div>
                   {{end}}
-                </div>
+                  {{ if eq $p.Type "string"}}
+                    <div class="form-group">
+                      <label for="{{$p.Name}}">{{.Label}}</label>
+                      <input type="text" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
+                      <small class="form-text text-muted">{{.Description}}</small>
+                    </div>
+                  {{end}}
+                  {{ if eq $p.Type "boolean"}}
+                    <div class="form-check">
+                    <label for="{{$p.Name}}">{{.Label}}</label>
+                    <input type="checkbox" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
+                    <small class="form-text text-muted">{{.Description}}</small>
+                    </div>
+                  {{end}}
               {{end}}
               <button type="submit" class="btn btn-primary">Submit</button>
             </form>

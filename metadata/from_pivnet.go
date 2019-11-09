@@ -97,7 +97,7 @@ func FromPivnet(token, slug, version string) (Payload, error) {
 			}
 
 			for _, productFile := range productFiles {
-				matched, err := filepath.Match("cf*.pivotal", filepath.Base(productFile.AWSObjectKey))
+				matched, err := filepath.Match("*.pivotal", filepath.Base(productFile.AWSObjectKey))
 				if err != nil {
 					return payload, fmt.Errorf("could not match productFile %s: %s", productFile.AWSObjectKey, err)
 				}

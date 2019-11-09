@@ -20,15 +20,31 @@ var _ = Describe("AsHTML", func() {
 
 	It("generates fields based on type", func() {
 		doc := renderMetadata()
+		Expect(doc.Find(`.form-check input.form-check-input#boolean[type="checkbox"]`).Length()).To(Equal(1))
 		Expect(doc.Find(`.form-group input#integer[type="number"]`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-group input#ip_address[type="text"][pattern]`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-group input#port[type="number"][min="0"]`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-group textarea#rsa_cert_credentials_certificate`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-group textarea#rsa_cert_credentials_private_key`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-group textarea#rsa_pkey_credentials_private_key`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-group textarea#rsa_pkey_credentials_public_key`).Length()).To(Equal(1))
 		Expect(doc.Find(`.form-group input#string[type="text"]`).Length()).To(Equal(1))
-		Expect(doc.Find(`.form-check input#boolean[type="checkbox"]`).Length()).To(Equal(1))
+		Expect(doc.Find(`.form-group input#string_list[type="text"]`).Length()).To(Equal(1))
 	})
 })
 
 func renderMetadata() *goquery.Document {
 	payload := metadata.Payload{}
-	for _, t := range []string{"boolean", "integer", "string"} {
+	for _, t := range []string{
+		"boolean",
+		"integer",
+		"ip_address",
+		"port",
+		"rsa_cert_credentials",
+		"rsa_pkey_credentials",
+		"string",
+		"string_list",
+	} {
 		payload.FormTypes = append(payload.FormTypes, metadata.FormType{
 			Label: t,
 			PropertyInputs: []metadata.PropertyInput{

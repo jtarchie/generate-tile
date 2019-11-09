@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"log"
 
 	"github.com/jtarchie/tile-builder/metadata"
 )
@@ -46,20 +47,48 @@ var htmlTemplate = `
                       <input type="number" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
                       <small class="form-text text-muted">{{.Description}}</small>
                     </div>
-                  {{end}}
-                  {{ if eq $p.Type "string"}}
+                  {{else if eq $p.Type "port"}}
+                    <div class="form-group">
+                      <label for="{{$p.Name}}">{{.Label}}</label>
+                      <input type="number" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}} min="0">
+                      <small class="form-text text-muted">{{.Description}}</small>
+                    </div>
+                  {{else if eq $p.Type "ip_address"}}
+                    <div class="form-group">
+                      <label for="{{$p.Name}}">{{.Label}}</label>
+                      <input type="text" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}} pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">
+                      <small class="form-text text-muted">{{.Description}}</small>
+                    </div>
+                  {{else if eq $p.Type "string" "string_list"}}
                     <div class="form-group">
                       <label for="{{$p.Name}}">{{.Label}}</label>
                       <input type="text" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
                       <small class="form-text text-muted">{{.Description}}</small>
                     </div>
-                  {{end}}
-                  {{ if eq $p.Type "boolean"}}
+                  {{else if eq $p.Type "boolean"}}
                     <div class="form-check">
-                    <label for="{{$p.Name}}">{{.Label}}</label>
-                    <input type="checkbox" class="form-control" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
-                    <small class="form-text text-muted">{{.Description}}</small>
+                      <input type="checkbox" class="form-check-input" id="{{$p.Name}}" {{if eq $p.Optional false}}required{{end}}>
+                      <label for="{{$p.Name}}" class="form-check-label">{{.Label}}</label>
+                      <small class="form-text text-muted">{{.Description}}</small>
                     </div>
+                  {{else if eq $p.Type "rsa_cert_credentials"}}
+                    <div class="form-group">
+                      <label for="{{$p.Name}}">{{.Label}} Certificate</label>
+                      <textarea rows="5" class="form-control" id="{{$p.Name}}_certificate" {{if eq $p.Optional false}}required{{end}}></textarea>
+                      <label for="{{$p.Name}}">{{.Label}} Private Key</label>
+                      <textarea rows="5" class="form-control" id="{{$p.Name}}_private_key" {{if eq $p.Optional false}}required{{end}}></textarea>
+                      <small class="form-text text-muted">{{.Description}}</small>
+                    </div>
+                  {{else if eq $p.Type "rsa_pkey_credentials"}}
+                    <div class="form-group">
+                      <label for="{{$p.Name}}">{{.Label}} Public Key</label>
+                      <textarea rows="5" class="form-control" id="{{$p.Name}}_public_key" {{if eq $p.Optional false}}required{{end}}></textarea>
+                      <label for="{{$p.Name}}">{{.Label}} Private Key</label>
+                      <textarea rows="5" class="form-control" id="{{$p.Name}}_private_key" {{if eq $p.Optional false}}required{{end}}></textarea>
+                      <small class="form-text text-muted">{{.Description}}</small>
+                    </div>
+                  {{else}}
+                    {{ printf "Unsupported type %s" $p.Type | log }} 
                   {{end}}
               {{end}}
               <button type="submit" class="btn btn-primary">Submit</button>
@@ -82,6 +111,10 @@ func AsHTML(payload metadata.Payload) ([]byte, error) {
 		"getProperty": func(pi metadata.PropertyInput) metadata.PropertyBlueprint {
 			pb, _ := payload.FindPropertyBlueprintFromPropertyInput(pi)
 			return pb
+		},
+		"log": func(message string) string {
+			log.Print(message)
+			return ""
 		},
 	}).Parse(htmlTemplate)
 	if err != nil {

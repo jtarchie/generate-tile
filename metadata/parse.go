@@ -1,14 +1,7 @@
 package metadata
 
 import (
-	"archive/zip"
-	"bytes"
-	"fmt"
-	"gopkg.in/yaml.v2"
-	"io"
 	"regexp"
-
-	"github.com/mholt/archiver"
 )
 
 type PropertyInput struct {
@@ -192,34 +185,3 @@ type Payload struct {
 }
 
 var metadataFile = regexp.MustCompile(`metadata\/.*\.yml`)
-
-func FromTile(tilePath string) (Payload, error) {
-	var (
-		contents bytes.Buffer
-		payload  Payload
-	)
-
-	archive := archiver.NewZip()
-	err := archive.Walk(tilePath, func(f archiver.File) error {
-		zfh, ok := f.Header.(zip.FileHeader)
-		if ok {
-			if metadataFile.MatchString(zfh.Name) {
-				_, err := io.Copy(&contents, f)
-				return err
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return payload, fmt.Errorf("could not find metadata file in %s: %s", tilePath, err)
-	}
-
-	err = yaml.UnmarshalStrict(contents.Bytes(), &payload)
-	if err != nil {
-		return payload, fmt.Errorf("could not unmarshal %s: %s", tilePath, err)
-	}
-
-	return payload, nil
-}

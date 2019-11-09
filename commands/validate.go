@@ -2,21 +2,37 @@ package commands
 
 import (
 	"fmt"
+	"github.com/jtarchie/tile-builder/metadata"
 	"io"
 	"sort"
-
-	"github.com/jtarchie/tile-builder/metadata"
 )
 
 type Validate struct {
-	Path   string `long:"path" required:"true" description:"path to the pivotal file"`
+	Path   string `long:"path" description:"path to the pivotal file"`
+	Pivnet struct {
+		Token   string `long:"token" description:"the pivnet token from your account"`
+		Slug    string `long:"slug" description:"the slug of the product from Pivnet (appears in the URL)"`
+		Version string `long:"version" description:"the version of the product to download¬"`
+	} `group:"pivnet" namespace:"pivnet" env-namespace:"PIVNET"`
 	Stdout io.Writer
 }
 
 func (p Validate) Execute(_ []string) error {
-	payload, err := metadata.FromTile(p.Path)
-	if err != nil {
-		return fmt.Errorf("could not load metadata from tile: %s", err)
+	var (
+		payload metadata.Payload
+		err     error
+	)
+
+	if p.Path != "" {
+		payload, err = metadata.FromTile(p.Path)
+		if err != nil {
+			return fmt.Errorf("could not load metadata from tile: %s", err)
+		}
+	} else if p.Pivnet.Token != "" {
+		payload, err = metadata.FromPivnet(p.Pivnet.Token, p.Pivnet.Slug, p.Pivnet.Version)
+		if err != nil {
+			return fmt.Errorf("could not load metadata from pivnet: %s", err)
+		}
 	}
 
 	validations, err := payload.Validate()

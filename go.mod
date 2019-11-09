@@ -18,7 +18,10 @@ require (
 	github.com/onsi/ginkgo v1.10.2
 	github.com/onsi/gomega v1.7.0
 	github.com/pierrec/lz4 v2.3.0+incompatible // indirect
+	github.com/pivotal-cf/go-pivnet/v2 v2.0.10
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.30.0
 	gopkg.in/yaml.v2 v2.2.4
+	howett.net/ranger v0.0.0-20171016084633-e2e137620847
 )

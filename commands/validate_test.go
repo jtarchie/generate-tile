@@ -20,7 +20,9 @@ var _ = Describe("Validate", func() {
 		stdout := gbytes.NewBuffer()
 		productPath := createProductFile(metadata.Payload{})
 		command := commands.Validate{
-			Path:   productPath,
+			Tile: commands.TileArgs{
+				Path: productPath,
+			},
 			Stdout: stdout,
 		}
 		err := command.Execute(nil)

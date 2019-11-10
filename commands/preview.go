@@ -5,20 +5,19 @@ import (
 	"net/http"
 
 	"github.com/jtarchie/tile-builder/render"
-
-	"github.com/jtarchie/tile-builder/metadata"
 )
 
 type Preview struct {
-	Path   string `long:"path" required:"true" description:"path to the pivotal file"`
-	Port   int    `long:"port" default:"8181" description:"port number to listen on"`
+	Port   int      `long:"port" default:"8181" description:"port number to listen on"`
+	Tile   TileArgs `group:"tile" namespace:"tile" env-namespace:"TILE"`
+	Pivnet pivnet   `group:"pivnet" namespace:"pivnet" env-namespace:"PIVNET"`
 	Server *http.Server
 }
 
 func (p Preview) Execute(_ []string) error {
-	payload, err := metadata.FromTile(p.Path)
+	payload, err := loadMetadataForTile(p.Tile, p.Pivnet)
 	if err != nil {
-		return fmt.Errorf("could not load metadata from tile: %s", err)
+		return err
 	}
 
 	contents, err := render.AsHTML(payload)

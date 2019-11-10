@@ -3,16 +3,17 @@ package metadata
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/pivotal-cf/go-pivnet/v2"
-	"github.com/pivotal-cf/go-pivnet/v2/logshim"
-	"gopkg.in/yaml.v2"
-	"howett.net/ranger"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"github.com/pivotal-cf/go-pivnet/v2"
+	"github.com/pivotal-cf/go-pivnet/v2/logshim"
+	"gopkg.in/yaml.v2"
+	"howett.net/ranger"
 )
 
 type httpClient struct {
@@ -57,27 +58,10 @@ var _ ranger.HTTPClient = httpClient{}
 func FromPivnet(token, slug, version string) (Payload, error) {
 	var (
 		payload Payload
+		client  pivnet.Client
 	)
 
-	config := pivnet.ClientConfig{
-		Host:              pivnet.DefaultHost,
-		UserAgent:         "tile-builder",
-		SkipSSLValidation: false,
-	}
-
-	client := pivnet.NewClient(
-		pivnet.NewAccessTokenOrLegacyToken(
-			token,
-			pivnet.DefaultHost,
-			false,
-		),
-		config,
-		logshim.NewLogShim(
-			log.New(os.Stderr, "", log.LstdFlags),
-			log.New(os.Stderr, "", log.LstdFlags),
-			false,
-		),
-	)
+	client = createPivnetClient(token)
 
 	releases, err := client.Releases.List(slug)
 	if err != nil {
@@ -102,58 +86,83 @@ func FromPivnet(token, slug, version string) (Payload, error) {
 					return payload, fmt.Errorf("could not match productFile %s: %s", productFile.AWSObjectKey, err)
 				}
 				if matched {
-					link, err := productFile.DownloadLink()
-					if err != nil {
-						return payload, fmt.Errorf("could not get download link for productFile: %s", err)
-					}
-
-					parsedURL, _ := url.Parse(link)
-
-					httpClient := &ranger.HTTPRanger{
-						URL: parsedURL,
-						Client: httpClient{
-							Client: client,
-						},
-					}
-
-					reader, err := ranger.NewReader(httpClient)
-					if err != nil {
-						return payload, fmt.Errorf("can not create a range client: %s", err)
-					}
-
-					length, err := reader.Length()
-					if err != nil {
-						return payload, fmt.Errorf("can not find length of productFile: %s", err)
-					}
-
-					zipReader, err := zip.NewReader(reader, length)
-					if err != nil {
-						return payload, fmt.Errorf("can not create a zip client: %s", err)
-					}
-
-					for _, zipFile := range zipReader.File {
-						if metadataFile.MatchString(zipFile.Name) {
-							reader, err := zipFile.Open()
-							if err != nil {
-								return payload, fmt.Errorf("can not open zip file %s: %s", zipFile.Name, err)
-							}
-							contents, err := ioutil.ReadAll(reader)
-							if err != nil {
-								return payload, fmt.Errorf("can not read zip file %s: %s", zipFile.Name, err)
-							}
-
-							err = yaml.UnmarshalStrict(contents, &payload)
-							if err != nil {
-								return payload, fmt.Errorf("could not unmarshal %s: %s", zipFile.Name, err)
-							}
-
-							return payload, nil
-						}
-					}
+					return downloadAndParseMetadata(productFile, payload, client)
 				}
 			}
 		}
 	}
 
 	return payload, fmt.Errorf("could not find release with version %s for %s", version, slug)
+}
+
+func createPivnetClient(token string) pivnet.Client {
+	config := pivnet.ClientConfig{
+		Host:              pivnet.DefaultHost,
+		UserAgent:         "tile-builder",
+		SkipSSLValidation: false,
+	}
+	return pivnet.NewClient(
+		pivnet.NewAccessTokenOrLegacyToken(
+			token,
+			pivnet.DefaultHost,
+			false,
+		),
+		config,
+		logshim.NewLogShim(
+			log.New(os.Stderr, "", log.LstdFlags),
+			log.New(os.Stderr, "", log.LstdFlags),
+			false,
+		),
+	)
+}
+
+func downloadAndParseMetadata(productFile pivnet.ProductFile, payload Payload, client pivnet.Client) (Payload, error) {
+	link, err := productFile.DownloadLink()
+	if err != nil {
+		return payload, fmt.Errorf("could not get download link for productFile: %s", err)
+	}
+
+	parsedURL, _ := url.Parse(link)
+	httpClient := &ranger.HTTPRanger{
+		URL: parsedURL,
+		Client: httpClient{
+			Client: client,
+		},
+	}
+
+	reader, err := ranger.NewReader(httpClient)
+	if err != nil {
+		return payload, fmt.Errorf("can not create a range client: %s", err)
+	}
+
+	length, err := reader.Length()
+	if err != nil {
+		return payload, fmt.Errorf("can not find length of productFile: %s", err)
+	}
+
+	zipReader, err := zip.NewReader(reader, length)
+	if err != nil {
+		return payload, fmt.Errorf("can not create a zip client: %s", err)
+	}
+
+	for _, zipFile := range zipReader.File {
+		if metadataFile.MatchString(zipFile.Name) {
+			reader, err := zipFile.Open()
+			if err != nil {
+				return payload, fmt.Errorf("can not open zip file %s: %s", zipFile.Name, err)
+			}
+			contents, err := ioutil.ReadAll(reader)
+			if err != nil {
+				return payload, fmt.Errorf("can not read zip file %s: %s", zipFile.Name, err)
+			}
+
+			err = yaml.UnmarshalStrict(contents, &payload)
+			if err != nil {
+				return payload, fmt.Errorf("could not unmarshal %s: %s", zipFile.Name, err)
+			}
+
+			return payload, nil
+		}
+	}
+	return Payload{}, nil
 }

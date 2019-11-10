@@ -4,9 +4,10 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"io"
+
 	"github.com/mholt/archiver"
 	"gopkg.in/yaml.v2"
-	"io"
 )
 
 func FromTile(tilePath string) (Payload, error) {

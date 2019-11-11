@@ -1,6 +1,7 @@
 package render_test
 
 import (
+	"github.com/jtarchie/tile-builder/manifest"
 	"github.com/jtarchie/tile-builder/metadata"
 	"github.com/jtarchie/tile-builder/render"
 	. "github.com/onsi/ginkgo"
@@ -10,12 +11,12 @@ import (
 var _ = Describe("BoshManifest", func() {
 	When("a valid product config is provided", func() {
 		var (
-			err      error
-			manifest *render.Deployment
+			err     error
+			payload *manifest.Payload
 		)
 
 		BeforeEach(func() {
-			manifest, err = render.AsBoshManifest(metadata.Payload{
+			payload, err = render.AsBoshManifest(metadata.Payload{
 				Name: "some-tile",
 				Releases: []metadata.Release{
 					{
@@ -41,17 +42,19 @@ var _ = Describe("BoshManifest", func() {
 						Version:                    "12.3",
 					},
 				},
-			})
+			},
+
+			)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("returns a deployment name", func() {
-			Expect(manifest.Name).To(Equal("some-tile-guid"))
+			Expect(payload.Name).To(Equal("some-tile-guid"))
 		})
 
 		It("contains the releases", func() {
-			releases := manifest.Releases
-			Expect(releases).To(Equal([]render.Release{
+			releases := payload.Releases
+			Expect(releases).To(Equal([]manifest.Release{
 				{
 					Name:    "another-release",
 					Version: "v1.0.0",
@@ -66,8 +69,8 @@ var _ = Describe("BoshManifest", func() {
 		})
 
 		It("contains the stemcells", func() {
-			stemcells := manifest.Stemcells
-			Expect(stemcells).To(Equal([]render.Stemcell{
+			stemcells := payload.Stemcells
+			Expect(stemcells).To(Equal([]manifest.Stemcell{
 				{
 					Alias:   "ubuntu-xenial",
 					OS:      "ubuntu-xenial",

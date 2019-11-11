@@ -11,7 +11,6 @@ type Preview struct {
 	Port   int      `long:"port" default:"8181" description:"port number to listen on"`
 	Tile   TileArgs `group:"tile" namespace:"tile" env-namespace:"TILE"`
 	Pivnet pivnet   `group:"pivnet" namespace:"pivnet" env-namespace:"PIVNET"`
-	Server *http.Server
 }
 
 func (p Preview) Execute(_ []string) error {

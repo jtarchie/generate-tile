@@ -126,7 +126,7 @@ type Release struct {
 	File    string `validate:"required"`
 	Name    string `validate:"required"`
 	Version string `validate:"required"`
-	SHA1    string
+	SHA1    string `yaml:"sha1"`
 }
 
 type InstallTimeVerifier struct {

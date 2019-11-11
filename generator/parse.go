@@ -227,6 +227,7 @@ func parseReleaseDir(releasePath string) (BoshReleasePayload, error) {
 	if err != nil {
 		return BoshReleasePayload{}, fmt.Errorf("could not find the release's releases in %s: %s", releasePath, err)
 	}
+
 	if len(matches) == 0 {
 		return BoshReleasePayload{}, fmt.Errorf("no releases found in release in %s", releasePath)
 	}

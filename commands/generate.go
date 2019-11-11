@@ -71,7 +71,7 @@ func parseRelease(releasePath string) ([]byte, error) {
 		return nil, err
 	}
 
-	tile, err := generator.GeneratorTile(specs)
+	tile, err := generator.Tile(specs)
 	if err != nil {
 		return nil, err
 	}

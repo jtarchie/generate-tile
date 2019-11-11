@@ -9,7 +9,7 @@ import (
 	"github.com/jtarchie/tile-builder/metadata"
 )
 
-var htmlTemplate = `
+const htmlTemplate = `
 <!doctype html>
 <html lang="en">
   <head>

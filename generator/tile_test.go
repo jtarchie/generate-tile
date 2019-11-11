@@ -14,7 +14,7 @@ var _ = Describe("Generating the tile", func() {
 			release, err := generator.ParseRelease(dir)
 			Expect(err).NotTo(HaveOccurred())
 
-			tile, err := generator.GeneratorTile(release)
+			tile, err := generator.Tile(release)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(tile.Description).To(Equal(""))
@@ -164,7 +164,7 @@ properties:
 				Specs: []generator.SpecPayload{spec},
 			}
 
-			tile, err := generator.GeneratorTile(release)
+			tile, err := generator.Tile(release)
 			Expect(err).NotTo(HaveOccurred())
 
 			pb := tile.PropertyBlueprints

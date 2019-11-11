@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func GeneratorTile(release BoshReleasePayload) (metadata.Payload, error) {
+func Tile(release BoshReleasePayload) (metadata.Payload, error) {
 	specs := release.Specs
 
 	var t metadata.Payload

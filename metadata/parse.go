@@ -48,6 +48,7 @@ type PropertyBlueprint struct {
 	Configurable       bool
 	Constraints        Constraints         `yaml:",omitempty"`
 	Default            interface{}         `yaml:"default,omitempty"`
+	FreeOnDeploy       bool                `yaml:"freeze_on_deploy"`
 	Name               string              `validate:"required"`
 	NamedManifests     []NamedManifest     `yaml:"named_manifests" validate:"dive"`
 	Optional           bool                `yaml:",omitempty"`
@@ -113,10 +114,6 @@ type JobType struct {
 	SingleAZOnly        bool       `yaml:"single_az_only"`
 	Templates           []Template `validate:"required,dive"`
 	UseStemcell         string     `yaml:"use_stemcell,omitempty"`
-
-	//Deprecated
-	StaticIP  string `yaml:"static_ip" validate:"oneof=0 1"`
-	DynamicIP string `yaml:"dynamic_ip" validate:"oneof=0 1"`
 }
 
 type StemcellCriteria struct {
@@ -157,31 +154,40 @@ type Errand struct {
 	Instances     []string `yaml:",omitempty"`
 	Label         string   `validate:"required"`
 	Description   string   `yaml:",omitempty"`
-	ImpactWarning string   `yaml:"image_warning,omitempty"`
+	ImpactWarning string   `yaml:"impact_warning,omitempty"`
+}
+
+type ProductVersion struct {
+	Name     string `validate:"required"`
+	Version  string `validate:"required"`
+	Optional bool   // not documented
 }
 
 // documented: https://docs.pivotal.io/tiledev/2-7/property-template-references.html
 type Payload struct {
-	Description              string
-	FormTypes                []FormType `yaml:"form_types" validate:"dive"`
-	IconImage                string     `yaml:"icon_image" validate:"required"`
-	JobTypes                 []JobType  `yaml:"job_types" validate:"dive"`
-	Label                    string
-	InstallTimeVerifiers     []InstallTimeVerifier `yaml:"install_time_verifiers" validate:"dive"`
-	MetadataVersion          string                `yaml:"metadata_version"`
-	MinimumVersionForUpgrade string                `yaml:"minimum_version_for_upgrade" validate:"required"`
-	Name                     string                `validate:"required"`
-	OpsmanagerSyslog         bool                  `yaml:"opsmanager_syslog"`
-	PivnetFilenameRegex      string                `yaml:"pivnet_filename_regex,omitempty"`
-	ProductVersion           string                `yaml:"product_version" validate:"required"`
-	PropertyBlueprints       []PropertyBlueprint   `yaml:"property_blueprints" validate:"dive"`
-	Rank                     int
-	Releases                 []Release        `validate:"required,dive"`
-	RuntimeConfigs           []RuntimeConfig  `yaml:"runtime_configs" validate:"dive"`
-	StemcellCriteria         StemcellCriteria `yaml:"stemcell_criteria" validate:"required,dive"`
-	Variables                []Variable       `validate:"dive"`
-	PostDeployErrands        []Errand         `yaml:"post_deploy_errands,omitempty" validate:"dive"`
-	PreDeleteErrands         []Errand         `yaml:"pre_delete_errands,omitempty" validate:"dive"`
+	AdditionalStemcellsCriteria []StemcellCriteria `yaml:"additional_stemcells_criteria" validate:"dive"`
+	Description                 string
+	FormTypes                   []FormType `yaml:"form_types" validate:"dive"`
+	IconImage                   string     `yaml:"icon_image" validate:"required"`
+	JobTypes                    []JobType  `yaml:"job_types" validate:"dive"`
+	Label                       string
+	InstallTimeVerifiers        []InstallTimeVerifier `yaml:"install_time_verifiers" validate:"dive"`
+	MetadataVersion             string                `yaml:"metadata_version"`
+	MinimumVersionForUpgrade    string                `yaml:"minimum_version_for_upgrade" validate:"required"`
+	Name                        string                `validate:"required"`
+	OpsmanagerSyslog            bool                  `yaml:"opsmanager_syslog"`
+	PivnetFilenameRegex         string                `yaml:"pivnet_filename_regex,omitempty"`
+	ProductVersion              string                `yaml:"product_version" validate:"required"`
+	PropertyBlueprints          []PropertyBlueprint   `yaml:"property_blueprints" validate:"dive"`
+	Rank                        int
+	Releases                    []Release        `validate:"required,dive"`
+	RequiresProductVersions     []ProductVersion `yaml:"requires_product_versions" validate:"dive"`
+	RuntimeConfigs              []RuntimeConfig  `yaml:"runtime_configs" validate:"dive"`
+	ServiceBroker               bool             `yaml:"service_broker"`
+	StemcellCriteria            StemcellCriteria `yaml:"stemcell_criteria" validate:"required,dive"`
+	Variables                   []Variable       `validate:"dive"`
+	PostDeployErrands           []Errand         `yaml:"post_deploy_errands,omitempty" validate:"dive"`
+	PreDeleteErrands            []Errand         `yaml:"pre_delete_errands,omitempty" validate:"dive"`
 }
 
 var metadataFile = regexp.MustCompile(`metadata\/.*\.yml`)

@@ -11,28 +11,35 @@ import (
 
 func (p Payload) Validate() (validator.ValidationErrorsTranslations, error) {
 	validate := validator.New()
-	validate.RegisterValidation("property-exists", func(fl validator.FieldLevel) bool {
+	err := validate.RegisterValidation("property-exists", func(fl validator.FieldLevel) bool {
 		_, found := p.FindPropertyBlueprintFromPropertyInput(fl.Parent().Interface().(PropertyInput))
 		return found
 	})
 
-	en := en.New()
-	uni := ut.New(en, en)
-	trans, found := uni.GetTranslator("en")
-	if !found {
-		return nil, fmt.Errorf("could not find 'en' translation")
-	}
-	err := en_translations.RegisterDefaultTranslations(validate, trans)
 	if err != nil {
-		return nil, fmt.Errorf("could not setup 'en' translation: %s", err)
+		return nil, err
 	}
 
-	validate.RegisterTranslation("property-exists", trans, func(ut ut.Translator) error {
+	english := en.New()
+	uni := ut.New(english, english)
+	trans, found := uni.GetTranslator("en")
+	if !found {
+		return nil, fmt.Errorf("could not find 'english' translation")
+	}
+	err = en_translations.RegisterDefaultTranslations(validate, trans)
+	if err != nil {
+		return nil, fmt.Errorf("could not setup 'english' translation: %s", err)
+	}
+
+	err = validate.RegisterTranslation("property-exists", trans, func(ut ut.Translator) error {
 		return ut.Add("property-exists", "References a property blueprint ('{0}') that does not exist", true)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T("property-exists", fe.Value().(string))
 		return t
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	err = validate.Struct(p)
 	if errs, ok := err.(validator.ValidationErrors); ok {

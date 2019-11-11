@@ -18,13 +18,13 @@ type pivnet struct {
 	Version string `long:"version" description:"the version of the product to download¬"`
 }
 
-type Validate struct {
+type ValidateTile struct {
 	Tile   TileArgs `group:"tile" namespace:"tile" env-namespace:"TILE"`
 	Pivnet pivnet   `group:"pivnet" namespace:"pivnet" env-namespace:"PIVNET"`
 	Stdout io.Writer
 }
 
-func (p Validate) Execute(_ []string) error {
+func (p ValidateTile) Execute(_ []string) error {
 	payload, err := loadMetadataForTile(p.Tile, p.Pivnet)
 	if err != nil {
 		return err

@@ -15,11 +15,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Validate", func() {
+var _ = Describe("ValidateTile", func() {
 	It("writes validation errors to stdout", func() {
 		stdout := gbytes.NewBuffer()
 		productPath := createProductFile(metadata.Payload{})
-		command := commands.Validate{
+		command := commands.ValidateTile{
 			Tile: commands.TileArgs{
 				Path: productPath,
 			},

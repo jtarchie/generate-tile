@@ -1,5 +1,11 @@
 package configuration
 
+import (
+	"fmt"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+)
+
 type Property struct {
 	Value interface{}
 }
@@ -61,4 +67,20 @@ type Product struct {
 	NetworkProperties NetworkProperties         `yaml:"network-properties,omitempty" validate:"dive"`
 	ProductProperties map[string]Property       `yaml:"product-properties,omitempty" validate:"dive"`
 	ResourceConfig    map[string]ResourceConfig `yaml:"resource-config,omitempty" validate:"dive"`
+}
+
+func FromFile(filename string) (Product, error) {
+	var product Product
+
+	contents, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return product, fmt.Errorf("could not read file %s: %s", filename, err)
+	}
+
+	err = yaml.UnmarshalStrict(contents, &product)
+	if err != nil {
+		return product, fmt.Errorf("could not unmarshal product: %s", err)
+	}
+
+	return product, nil
 }

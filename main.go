@@ -8,13 +8,13 @@ import (
 )
 
 var command struct {
-	Generate commands.Generate `command:"generate"`
-	Preview  commands.Preview  `command:"preview"`
-	Validate commands.Validate `command:"validate"`
+	Generate     commands.Generate     `command:"generate"`
+	Preview      commands.Preview      `command:"preview"`
+	ValidateTile commands.ValidateTile `command:"validate-tile"`
 }
 
 func main() {
-	command.Validate = commands.Validate{
+	command.ValidateTile = commands.ValidateTile{
 		Stdout: os.Stdout,
 	}
 

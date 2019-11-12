@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -49,10 +50,43 @@ func (p Payload) Validate() (validator.ValidationErrorsTranslations, error) {
 }
 
 func (p Payload) FindPropertyBlueprintFromPropertyInput(pi PropertyInput) (PropertyBlueprint, bool) {
-	for _, pb := range p.PropertyBlueprints {
-		if fmt.Sprintf(".properties.%s", pb.Name) == pi.Reference {
-			return pb, true
+	parts := strings.Split(pi.Reference, ".")
+	if parts[1] == "properties" {
+		return propertyBlueprint(".properties", pi.Reference, p.PropertyBlueprints)
+	}
+
+	for _, jobType := range p.JobTypes {
+		if parts[1] == jobType.Name {
+			jobPrefix := fmt.Sprintf(".%s", jobType.Name)
+			if strings.HasPrefix(pi.Reference, jobPrefix) {
+				return propertyBlueprint(jobPrefix, pi.Reference, jobType.PropertyBlueprints)
+			}
 		}
 	}
+
+	return PropertyBlueprint{}, false
+}
+
+func propertyBlueprint(prefix string, reference string, blueprints []PropertyBlueprint) (PropertyBlueprint, bool) {
+	for _, pb := range blueprints {
+		currentPrefix := fmt.Sprintf("%s.%s", prefix, pb.Name)
+		if currentPrefix == reference {
+			return pb, true
+		}
+		if strings.HasPrefix(reference, currentPrefix) {
+			if len(pb.OptionTemplates) > 0 {
+				for _, optionTemplate := range pb.OptionTemplates {
+					optionTemplatePrefix := fmt.Sprintf("%s.%s.%s", prefix, pb.Name, optionTemplate.Name)
+					pb, found := propertyBlueprint(optionTemplatePrefix, reference, optionTemplate.PropertyBlueprints)
+					if found {
+						return pb, found
+					}
+				}
+			} else {
+				return propertyBlueprint(currentPrefix, reference, pb.PropertyBlueprints)
+			}
+		}
+	}
+
 	return PropertyBlueprint{}, false
 }

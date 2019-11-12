@@ -11,6 +11,7 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.16.0
+	github.com/gobuffalo/packr/v2 v2.7.1
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/imdario/mergo v0.3.8
 	github.com/jessevdk/go-flags v1.4.0
@@ -25,7 +26,6 @@ require (
 	github.com/shirou/gopsutil v2.19.10+incompatible // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/net v0.0.0-20191109021931-daa7c04131f5 // indirect
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
 	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

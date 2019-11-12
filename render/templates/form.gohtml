@@ -1,0 +1,205 @@
+{{define "property_input"}}
+    {{ $pb := getPropertyBlueprint . }}
+    {{ if eq $pb.Type "integer"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <input type="number" class="form-control" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}}
+                   placeholder="{{.Placeholder}}">
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "port"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <input type="number" class="form-control" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}} min="0"
+                   placeholder="{{.Placeholder}}">
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "ip_address"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <input type="text" class="form-control" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}}
+                   pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$"
+                   placeholder="{{.Placeholder}}">
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "string" "string_list" "ip_ranges" "email" "domain" "wildcard_domain" "network_address" "network_address_list" "http_url" "ldap_url"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <input type="text" class="form-control" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}}
+                   placeholder="{{.Placeholder}}">
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "dropdown_select" "multi_select_options"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <select id="{{$pb.Name}}" {{if eq $pb.Optional false}}required{{end}}>
+                {{range $option := $pb.Options}}
+                    <option value="{{$option.Name}}">{{$option.Label}}</option>
+                {{end}}
+            </select>
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "smtp_authentication"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <select id="{{$pb.Name}}" {{if eq $pb.Optional false}}required{{end}}>
+                <option>plain</option>
+                <option>login</option>
+                <option>cram_md5</option>
+            </select>
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "secret"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <input type="password" class="form-control" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}}
+                   placeholder="{{.Placeholder}}">
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "simple_credentials"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <input type="text" class="form-control" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}} placeholder="username">
+            <input type="password" class="form-control" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}} placeholder="password">
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "boolean"}}
+        <div class="pui-checkbox">
+            <input type="checkbox" class="pui-checkbox-input" id="{{$pb.Name}}"
+                   {{if eq $pb.Optional false}}required{{end}}>
+            <label for="{{$pb.Name}}" class="pui-checkbox-label">
+                                            <span class="pui-checkbox-control"><div class="icon icon-middle"><svg
+                                                            height="48" width="48" viewBox="0 0 48 48"
+                                                            xmlns="http://www.w3.org/2000/svg" class="icon-check"><path
+                                                                d="M18 32.34L9.66 24l-2.83 2.83L18 38l24-24-2.83-2.83z"></path></svg></div></span>
+                {{.Label}}
+            </label>
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "text" "ca_certificate"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}}</label>
+            <textarea rows="5" class="form-control" id="{{$pb.Name}}"
+                      {{if eq $pb.Optional false}}required{{end}} placeholder="{{.Placeholder}}"></textarea>
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "rsa_cert_credentials"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}} Certificate</label>
+            <textarea rows="5" class="form-control" id="{{$pb.Name}}_certificate"
+                      {{if eq $pb.Optional false}}required{{end}}></textarea>
+            <label for="{{$pb.Name}}">{{.Label}} Private Key</label>
+            <textarea rows="5" class="form-control" id="{{$pb.Name}}_private_key"
+                      {{if eq $pb.Optional false}}required{{end}}></textarea>
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "rsa_pkey_credentials"}}
+        <div class="form-unit">
+            <label for="{{$pb.Name}}">{{.Label}} Public Key</label>
+            <textarea rows="5" class="form-control" id="{{$pb.Name}}_public_key"
+                      {{if eq $pb.Optional false}}required{{end}}></textarea>
+            <label for="{{$pb.Name}}">{{.Label}} Private Key</label>
+            <textarea rows="5" class="form-control" id="{{$pb.Name}}_private_key"
+                      {{if eq $pb.Optional false}}required{{end}}></textarea>
+            <small class="help-row type-gray">{{.Description}}</small>
+        </div>
+    {{else if eq $pb.Type "selector"}}
+        <div class="pui-radio-group">
+            <label>{{.Label}}</label>
+            {{ range $index, $spi := .SelectorPropertyInputs }}
+                <div class="pui-radio"><input type="radio" value="true"
+                                              name="{{$pb.Name}}-radio-group"
+                                              class="pui-radio-input"
+                                              id="{{$pb.Name}}_{{$index}}"/><label
+                            class="pui-radio-label" for="{{$pb.Name}}_{{$index}}"><span
+                                class="pui-radio-circle"></span>{{$spi.Label}}</label></div>
+                {{range $spi.PropertyInputs}}
+                    {{template "property_input" .}}
+                {{end}}
+                <small class="help-row type-gray">{{.Description}}</small>
+
+            {{ end }}
+        </div>
+    {{else}}
+        {{ printf "Unsupported type %s on property %s" $pb.Type .Reference | log }}
+    {{end}}
+{{end}}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="http://d2bsvk2etkq8vr.cloudfront.net/pui-css/pui-components-19.2.2.css">
+    <style>
+        .tab-content[hidden] {
+            display: none;
+        }
+
+        .tab-content {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="pui-siteframe">
+    <div class="grid pui-siteframe-header">
+        <div class="col col-fixed pui-siteframe-header-title">
+            <h4>{{.Label}} @ v{{.ProductVersion}}</h4>
+        </div>
+    </div>
+    <div class="grid grid-nogutter pui-siteframe-body">
+        <div class="col col-fixed">
+            <nav class="pui-siteframe-sidebar">
+                <ul class="pui-sidebar-primary-links" data-tabs>
+                    {{ range $index, $ft := .FormTypes }}
+                        <li class="{{if eq $index 0}}pui-sidebar-li-active{{end}}">
+                            <div class="pui-sidebar-li-content"><a href="#{{$ft.Name}}" id="{{$ft.Name}}-tab"
+                                                                   {{if eq $index 0}}data-tabby-default{{end}}
+                                                                   href="#{{$ft.Name}}" role="tab"
+                                                                   aria-controls="{{$ft.Name}}"
+                                                                   aria-selected="false">{{$ft.Label}}</a></div>
+                        </li>
+                    {{end}}
+                </ul>
+            </nav>
+        </div>
+        <div class="col">
+            <div class="bg-light-gray pal" style="height:100%;overflow:auto">
+                {{range $index, $ft := .FormTypes}}
+                    <div class="tab-content" id="{{$ft.Name}}" role="tabpanel" aria-labelledby="{{$ft.Name}}-tab">
+                        <p>{{$ft.Description}}</p>
+                        <form id="form-{{$ft.Name}}" class="form">
+                            {{range .PropertyInputs}}
+                                {{template "property_input" .}}
+                            {{end}}
+                            <button type="submit" class="pui-btn pui-btn--primary">Save</button>
+                        </form>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/gh/cferdinandi/tabby@12/dist/js/tabby.polyfills.min.js"></script>
+<script>
+    var tabs = new Tabby('[data-tabs]');
+    document.addEventListener('tabby', function (event) {
+        var tab = event.target;
+        $(tab).parents("[data-tabs]").children("li").removeClass("pui-sidebar-li-active");
+        $(tab).parents("li").addClass("pui-sidebar-li-active");
+    })
+</script>
+</body>
+</html>

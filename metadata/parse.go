@@ -46,7 +46,7 @@ type Option struct {
 
 type PropertyBlueprint struct {
 	Configurable       bool
-	Constraints        Constraints         `yaml:",omitempty"`
+	Constraints        []Constraints       `yaml:",omitempty"`
 	Default            interface{}         `yaml:"default,omitempty"`
 	FreeOnDeploy       bool                `yaml:"freeze_on_deploy"`
 	Name               string              `validate:"required"`

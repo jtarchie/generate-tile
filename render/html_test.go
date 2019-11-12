@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("AsHTML", func() {
+var _ = PDescribe("AsHTML", func() {
 	It("returns tabs for each form group", func() {
 		doc := renderMetadata()
 

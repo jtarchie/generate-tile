@@ -19,12 +19,13 @@ func (p Preview) Execute(_ []string) error {
 		return err
 	}
 
-	contents, err := render.AsHTML(payload)
+	_, err = render.AsHTML(payload)
 	if err != nil {
 		return err
 	}
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
+		contents, _ := render.AsHTML(payload)
 		_, _ = response.Write(contents)
 	})
 

@@ -10,7 +10,7 @@ require (
 	github.com/frankban/quicktest v1.5.0 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.13.0
-	github.com/go-playground/universal-translator v0.16.0
+	github.com/go-playground/universal-translator v0.17.0
 	github.com/gobuffalo/packr/v2 v2.7.1
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/imdario/mergo v0.3.8

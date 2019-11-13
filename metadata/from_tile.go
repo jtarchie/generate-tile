@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func FromTile(tilePath string) (Payload, error) {
+func FromTile(tilePath string, strict bool) (Payload, error) {
 	var (
 		contents bytes.Buffer
 		payload  Payload
@@ -33,7 +33,11 @@ func FromTile(tilePath string) (Payload, error) {
 		return payload, fmt.Errorf("could not find metadata file in %s: %s", tilePath, err)
 	}
 
-	err = yaml.UnmarshalStrict(contents.Bytes(), &payload)
+	if strict {
+		err = yaml.UnmarshalStrict(contents.Bytes(), &payload)
+	} else {
+		err = yaml.Unmarshal(contents.Bytes(), &payload)
+	}
 	if err != nil {
 		return payload, fmt.Errorf("could not unmarshal %s: %s", tilePath, err)
 	}

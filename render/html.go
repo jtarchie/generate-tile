@@ -17,7 +17,7 @@ func AsHTML(payload metadata.Payload) ([]byte, error) {
 	}
 	t, err := template.New("preview").Funcs(template.FuncMap{
 		"getPropertyBlueprint": func(pi metadata.PropertyInput) metadata.PropertyBlueprint {
-			pb, _ := payload.FindPropertyBlueprintFromPropertyInput(pi)
+			pb, _ := payload.FindPropertyBlueprintFromPropertyInput(pi.Reference)
 			return pb
 		},
 		"log": func(message string) string {

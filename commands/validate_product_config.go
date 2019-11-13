@@ -3,17 +3,17 @@ package commands
 import (
 	"fmt"
 	"github.com/jtarchie/tile-builder/configuration"
-	"strings"
 )
 
 type ValidateProductConfig struct {
 	Config string   `long:"config" description:"config file of the product" require:"true"`
 	Tile   TileArgs `group:"tile" namespace:"tile" env-namespace:"TILE"`
 	Pivnet pivnet   `group:"pivnet" namespace:"pivnet" env-namespace:"PIVNET"`
+	Strict bool     `long:"strict" description:"use strict unmarshaling for the tile"`
 }
 
 func (p ValidateProductConfig) Execute(_ []string) error {
-	metadataPayload, err := loadMetadataForTile(p.Tile, p.Pivnet)
+	metadataPayload, err := loadMetadataForTile(p.Tile, p.Pivnet, p.Strict)
 	if err != nil {
 		return err
 	}
@@ -23,24 +23,17 @@ func (p ValidateProductConfig) Execute(_ []string) error {
 		return err
 	}
 
-	for name, _ := range configPayload.ProductProperties {
-		parts := strings.Split(name, ".")
-		if parts[0] == "properties" {
-			for _, propertyBlueprint := range metadataPayload.PropertyBlueprints {
-				if parts[1] == propertyBlueprint.Name {
-					continue
-				}
-			}
-			continue
+	for reference, pi := range configPayload.ProductProperties {
+		pb, found := metadataPayload.FindPropertyBlueprintFromPropertyInput(reference)
+
+		if !found {
+			return fmt.Errorf("cannot determine lookup path of property '%s', expected `.properties` or `.job-name`", reference)
 		}
 
-		for _, job := range metadataPayload.JobTypes {
-			if parts[0] == job.Name {
-				continue
-			}
+		err = pb.ValidateValue(pi.Value)
+		if err != nil {
+			return fmt.Errorf("property '%s' value is incorrect: %s", reference, err)
 		}
-
-		return fmt.Errorf("cannot determine lookup path of property '%s', expected `.properties` or `.job-name`", name)
 	}
 
 	return nil

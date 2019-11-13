@@ -55,7 +55,7 @@ func (h httpClient) Head(endpoint string) (*http.Response, error) {
 
 var _ ranger.HTTPClient = httpClient{}
 
-func FromPivnet(token, slug, version string) (Payload, error) {
+func FromPivnet(token, slug, version string, strict bool) (Payload, error) {
 	var (
 		payload Payload
 		client  pivnet.Client
@@ -86,7 +86,7 @@ func FromPivnet(token, slug, version string) (Payload, error) {
 					return payload, fmt.Errorf("could not match productFile %s: %s", productFile.AWSObjectKey, err)
 				}
 				if matched {
-					return downloadAndParseMetadata(productFile, payload, client)
+					return downloadAndParseMetadata(productFile, payload, client, strict)
 				}
 			}
 		}
@@ -116,7 +116,7 @@ func createPivnetClient(token string) pivnet.Client {
 	)
 }
 
-func downloadAndParseMetadata(productFile pivnet.ProductFile, payload Payload, client pivnet.Client) (Payload, error) {
+func downloadAndParseMetadata(productFile pivnet.ProductFile, payload Payload, client pivnet.Client, strict bool) (Payload, error) {
 	link, err := productFile.DownloadLink()
 	if err != nil {
 		return payload, fmt.Errorf("could not get download link for productFile: %s", err)
@@ -156,7 +156,11 @@ func downloadAndParseMetadata(productFile pivnet.ProductFile, payload Payload, c
 				return payload, fmt.Errorf("can not read zip file %s: %s", zipFile.Name, err)
 			}
 
-			err = yaml.UnmarshalStrict(contents, &payload)
+			if strict {
+				err = yaml.UnmarshalStrict(contents, &payload)
+			} else {
+				err = yaml.Unmarshal(contents, &payload)
+			}
 			if err != nil {
 				return payload, fmt.Errorf("could not unmarshal %s: %s", zipFile.Name, err)
 			}

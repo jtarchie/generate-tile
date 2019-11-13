@@ -10,11 +10,12 @@ import (
 type Preview struct {
 	Port   int      `long:"port" default:"8181" description:"port number to listen on"`
 	Tile   TileArgs `group:"tile" namespace:"tile" env-namespace:"TILE"`
+	Strict bool     `long:"strict" description:"use strict unmarshaling for the tile"`
 	Pivnet pivnet   `group:"pivnet" namespace:"pivnet" env-namespace:"PIVNET"`
 }
 
 func (p Preview) Execute(_ []string) error {
-	payload, err := loadMetadataForTile(p.Tile, p.Pivnet)
+	payload, err := loadMetadataForTile(p.Tile, p.Pivnet, p.Strict)
 	if err != nil {
 		return err
 	}

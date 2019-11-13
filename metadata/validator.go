@@ -13,7 +13,7 @@ import (
 func (p Payload) Validate() (validator.ValidationErrorsTranslations, error) {
 	validate := validator.New()
 	err := validate.RegisterValidation("property-exists", func(fl validator.FieldLevel) bool {
-		_, found := p.FindPropertyBlueprintFromPropertyInput(fl.Parent().Interface().(PropertyInput))
+		_, found := p.FindPropertyBlueprintFromPropertyInput(fl.Parent().Interface().(PropertyInput).Reference)
 		return found
 	})
 
@@ -24,9 +24,11 @@ func (p Payload) Validate() (validator.ValidationErrorsTranslations, error) {
 	english := en.New()
 	uni := ut.New(english, english)
 	trans, found := uni.GetTranslator("en")
+
 	if !found {
 		return nil, fmt.Errorf("could not find 'english' translation")
 	}
+
 	err = en_translations.RegisterDefaultTranslations(validate, trans)
 	if err != nil {
 		return nil, fmt.Errorf("could not setup 'english' translation: %s", err)
@@ -49,17 +51,17 @@ func (p Payload) Validate() (validator.ValidationErrorsTranslations, error) {
 	return nil, err
 }
 
-func (p Payload) FindPropertyBlueprintFromPropertyInput(pi PropertyInput) (PropertyBlueprint, bool) {
-	parts := strings.Split(pi.Reference, ".")
+func (p Payload) FindPropertyBlueprintFromPropertyInput(reference string) (PropertyBlueprint, bool) {
+	parts := strings.Split(reference, ".")
 	if parts[1] == "properties" {
-		return propertyBlueprint(".properties", pi.Reference, p.PropertyBlueprints)
+		return propertyBlueprint(".properties", reference, p.PropertyBlueprints)
 	}
 
 	for _, jobType := range p.JobTypes {
 		if parts[1] == jobType.Name {
 			jobPrefix := fmt.Sprintf(".%s", jobType.Name)
-			if strings.HasPrefix(pi.Reference, jobPrefix) {
-				return propertyBlueprint(jobPrefix, pi.Reference, jobType.PropertyBlueprints)
+			if strings.HasPrefix(reference, jobPrefix) {
+				return propertyBlueprint(jobPrefix, reference, jobType.PropertyBlueprints)
 			}
 		}
 	}

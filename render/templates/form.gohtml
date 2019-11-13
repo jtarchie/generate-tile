@@ -1,4 +1,4 @@
-{{define "property_input"}}
+{{- define "property_input" -}}
     {{ $pb := getPropertyBlueprint . }}
     {{ if eq $pb.Type "integer"}}
         <div class="form-unit">
@@ -64,9 +64,9 @@
     {{else if eq $pb.Type "simple_credentials"}}
         <div class="form-unit">
             <label for="{{$pb.Name}}">{{.Label}}</label>
-            <input type="text" class="form-control" id="{{$pb.Name}}"
+            <input type="text" class="form-control" id="{{$pb.Name}}_username"
                    {{if eq $pb.Optional false}}required{{end}} placeholder="username">
-            <input type="password" class="form-control" id="{{$pb.Name}}"
+            <input type="password" class="form-control" id="{{$pb.Name}}_password"
                    {{if eq $pb.Optional false}}required{{end}} placeholder="password">
             <small class="help-row type-gray">{{.Description}}</small>
         </div>
@@ -114,23 +114,38 @@
         <div class="pui-radio-group">
             <label>{{.Label}}</label>
             {{ range $index, $spi := .SelectorPropertyInputs }}
-                <div class="pui-radio"><input type="radio" value="true"
-                                              name="{{$pb.Name}}-radio-group"
-                                              class="pui-radio-input"
-                                              id="{{$pb.Name}}_{{$index}}"/><label
-                            class="pui-radio-label" for="{{$pb.Name}}_{{$index}}"><span
-                                class="pui-radio-circle"></span>{{$spi.Label}}</label></div>
-                {{range $spi.PropertyInputs}}
-                    {{template "property_input" .}}
-                {{end}}
-                <small class="help-row type-gray">{{.Description}}</small>
+                <div class="bg-light-gray pal">
+                    <section class="pui-panel-container">
+                        <div class="grid pui-panel-title">
+                            <div class="pui-radio"><input type="radio" value="{{$spi.Label}}"
+                                                          name="{{$pb.Name}}-radio-group"
+                                                          class="pui-radio-input"
+                                                          id="{{$pb.Name}}_{{$index}}"
+                                                          {{if eq $spi.Label $pb.Default}}checked{{end}}
+                                /><label
+                                        class="pui-radio-label" for="{{$pb.Name}}_{{$index}}"><span
+                                            class="pui-radio-circle"></span>{{$spi.Label}}</label></div>
+                            <small class="help-row type-gray">{{.Description}}</small>
+                        </div>
 
+                        {{ if gt (len $spi.PropertyInputs) 0 }}
+                            <div id="{{$pb.Name}}_{{$index}}_content"
+                                 class="pui-panel bg-white box-shadow-1 border-rounded">
+                                <div class="pui-panel-body">
+                                    {{- range $spi.PropertyInputs -}}
+                                        {{- template "property_input" . -}}
+                                    {{- end -}}
+                                </div>
+                            </div>
+                        {{ end }}
+                    </section>
+                </div>
             {{ end }}
         </div>
     {{else}}
         {{ printf "Unsupported type %s on property %s" $pb.Type .Reference | log }}
     {{end}}
-{{end}}
+{{- end -}}
 <!doctype html>
 <html lang="en">
 <head>
@@ -199,7 +214,16 @@
         var tab = event.target;
         $(tab).parents("[data-tabs]").children("li").removeClass("pui-sidebar-li-active");
         $(tab).parents("li").addClass("pui-sidebar-li-active");
-    })
+    });
+
+    var checkedSelectors = function () {
+        $('.pui-radio-input').each(function() {
+            var $this = $(this);
+            $("#" + $this.attr("id") + "_content").find("input, select, textarea").attr("disabled", !$this.is(":checked"));
+        })
+    };
+    checkedSelectors();
+    $('.pui-radio-input').click(checkedSelectors);
 </script>
 </body>
 </html>

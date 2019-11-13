@@ -21,11 +21,12 @@ type pivnet struct {
 type ValidateTile struct {
 	Tile   TileArgs `group:"tile" namespace:"tile" env-namespace:"TILE"`
 	Pivnet pivnet   `group:"pivnet" namespace:"pivnet" env-namespace:"PIVNET"`
+	Strict bool     `long:"strict" description:"use strict unmarshaling for the tile"`
 	Stdout io.Writer
 }
 
 func (p ValidateTile) Execute(_ []string) error {
-	payload, err := loadMetadataForTile(p.Tile, p.Pivnet)
+	payload, err := loadMetadataForTile(p.Tile, p.Pivnet, p.Strict)
 	if err != nil {
 		return err
 	}
@@ -49,15 +50,15 @@ func (p ValidateTile) Execute(_ []string) error {
 	return nil
 }
 
-func loadMetadataForTile(t TileArgs, p pivnet) (metadata.Payload, error) {
+func loadMetadataForTile(t TileArgs, p pivnet, strict bool) (metadata.Payload, error) {
 	if t.Path != "" {
-		payload, err := metadata.FromTile(t.Path)
+		payload, err := metadata.FromTile(t.Path, false)
 		if err != nil {
 			return metadata.Payload{}, fmt.Errorf("could not load metadata from tile: %s", err)
 		}
 		return payload, nil
 	} else if p.Token != "" {
-		payload, err := metadata.FromPivnet(p.Token, p.Slug, p.Version)
+		payload, err := metadata.FromPivnet(p.Token, p.Slug, p.Version, false)
 		if err != nil {
 			return metadata.Payload{}, fmt.Errorf("could not load metadata from pivnet: %s", err)
 		}

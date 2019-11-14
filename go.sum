@@ -109,6 +109,8 @@ github.com/pierrec/lz4 v2.3.0+incompatible h1:CZzRn4Ut9GbUkHlQ7jqBXeZQV41ZSKWFc3
 github.com/pierrec/lz4 v2.3.0+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
 github.com/pivotal-cf/go-pivnet/v2 v2.0.10 h1:AbB7+3hxAj1HrN74Gtu/3jcfI/VNh3pWxSxqPiTapKo=
 github.com/pivotal-cf/go-pivnet/v2 v2.0.10/go.mod h1:Ormn4YO2MooU40LNFwECoLd8XZFwbRcysET+OAn7FLg=
+github.com/pivotal-cf/go-pivnet/v2 v2.0.11 h1:6tzC4zOr7acFPevfP32+8rEU567JlDobqiIejFf8aOc=
+github.com/pivotal-cf/go-pivnet/v2 v2.0.11/go.mod h1:Ormn4YO2MooU40LNFwECoLd8XZFwbRcysET+OAn7FLg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/robdimsdale/sanitizer v0.0.0-20160522134901-ab2334cb7539/go.mod h1:tqCODtkKV+9Tfvt9JURvKCTxJ69bA/OU/QhsaQLK/rc=

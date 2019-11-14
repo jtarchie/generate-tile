@@ -22,7 +22,7 @@ require (
 	github.com/onsi/ginkgo v1.10.3
 	github.com/onsi/gomega v1.7.1
 	github.com/pierrec/lz4 v2.3.0+incompatible // indirect
-	github.com/pivotal-cf/go-pivnet/v2 v2.0.10
+	github.com/pivotal-cf/go-pivnet/v2 v2.0.11
 	github.com/shirou/gopsutil v2.19.10+incompatible // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/net v0.0.0-20191109021931-daa7c04131f5 // indirect

@@ -6,6 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/bmatcuk/doublestar v1.1.5
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/frankban/quicktest v1.5.0 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
@@ -15,6 +16,8 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/imdario/mergo v0.3.8
 	github.com/jessevdk/go-flags v1.4.0
+	github.com/labstack/echo v3.3.10+incompatible
+	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.6 // indirect
 	github.com/mholt/archiver v3.1.1+incompatible

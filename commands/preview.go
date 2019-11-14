@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"net/http"
 
 	"github.com/jtarchie/tile-builder/render"
@@ -25,14 +27,14 @@ func (p Preview) Execute(_ []string) error {
 		return err
 	}
 
-	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.GET("/", func(c echo.Context) error {
 		contents, _ := render.AsHTML(payload)
-		_, _ = response.Write(contents)
+		return c.HTMLBlob(http.StatusOK, contents)
 	})
 
 	fmt.Printf("listening on http://localhost:%d\n", p.Port)
-	server := &http.Server{
-		Addr: fmt.Sprintf(":%d", p.Port),
-	}
-	return server.ListenAndServe()
+
+	return e.Start(fmt.Sprintf(":%d", p.Port))
 }

@@ -22,7 +22,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.6 // indirect
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/nwaples/rardecode v1.0.0 // indirect
-	github.com/onsi/ginkgo v1.10.3
+	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.7.1
 	github.com/pierrec/lz4 v2.3.0+incompatible // indirect
 	github.com/pivotal-cf/go-pivnet/v2 v2.0.11

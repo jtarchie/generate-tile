@@ -3,7 +3,7 @@ module github.com/jtarchie/tile-builder
 go 1.13
 
 require (
-	github.com/PuerkitoBio/goquery v1.5.0
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/bmatcuk/doublestar v1.1.5
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect

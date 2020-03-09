@@ -12,7 +12,7 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
-	github.com/gobuffalo/packr/v2 v2.7.1
+	github.com/gobuffalo/packr/v2 v2.8.0
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/imdario/mergo v0.3.8
 	github.com/jessevdk/go-flags v1.4.0

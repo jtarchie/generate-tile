@@ -22,17 +22,15 @@ require (
 	github.com/mattn/go-runewidth v0.0.6 // indirect
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/nwaples/rardecode v1.0.0 // indirect
-	github.com/onsi/ginkgo v1.10.3
-	github.com/onsi/gomega v1.7.1
+	github.com/onsi/ginkgo v1.12.3
+	github.com/onsi/gomega v1.10.1
 	github.com/pierrec/lz4 v2.3.0+incompatible // indirect
 	github.com/pivotal-cf/go-pivnet/v2 v2.0.11
 	github.com/shirou/gopsutil v2.19.10+incompatible // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
-	golang.org/x/net v0.0.0-20191109021931-daa7c04131f5 // indirect
-	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.30.0
-	gopkg.in/yaml.v2 v2.2.7
+	gopkg.in/yaml.v2 v2.3.0
 	howett.net/ranger v0.0.0-20171016084633-e2e137620847
 )

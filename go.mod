@@ -14,7 +14,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/gobuffalo/packr/v2 v2.7.1
 	github.com/golang/snappy v0.0.1 // indirect
-	github.com/imdario/mergo v0.3.8
+	github.com/imdario/mergo v0.3.9
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
